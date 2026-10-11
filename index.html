@@ -85,6 +85,9 @@ textarea::placeholder, input::placeholder { color: var(--grey); }
 #interim.on { display: block; }
 .row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); flex-wrap: wrap; }
 .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--cyan-t); color: var(--navy); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 500; max-width: 100%; }
+.cats { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+.cats button { border: 0; background: var(--cyan-t); color: var(--navy); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 14px; font-weight: 500; min-height: 40px; }
+.cats button b { color: var(--navy2); margin-left: 4px; }
 .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip button { border: 0; background: none; font-size: 20px; line-height: 1; color: var(--grey); min-width: 28px; min-height: 28px; }
 .tool { border: 1px solid var(--line); background: var(--card); color: var(--navy); border-radius: 999px; min-height: 44px; padding: 0 16px; font-weight: 600; font-size: 15px; }
@@ -299,7 +302,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     $("#micfab").classList.toggle("on", v === "nap");
     if (v !== "nap") stopMic();
     if (v === "home") renderHome();
-    if (v === "hoi") { loadIndex(); setTimeout(function () { $("#q").focus(); }, 50); }
+    if (v === "hoi") { loadIndex(); if (!$("#q").value.trim()) renderCats(); setTimeout(function () { $("#q").focus(); }, 50); }
     window.scrollTo(0, 0);
   }
   [].forEach.call(document.querySelectorAll("nav.bottom button"), function (b) { b.onclick = function () { go(b.dataset.v); }; });
@@ -398,7 +401,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     $("#s-kn-l").textContent = index.updated ? "Knowledge · cập nhật " + hm(new Date(index.updated)) : "Knowledge trong kho";
     var news = index.items.slice(0, 5);
     $("#h-new").innerHTML = news.length ? news.map(function (it, i) {
-      return '<li class="tap" data-i="' + i + '"><span class="t"><b>' + esc(it.title) + '</b><small>' + esc(it.date) + (it.topics && it.topics[0] ? " · " + esc(it.topics[0]) : "") + '</small></span>' + tagFor(it) + '</li>';
+      return '<li class="tap" data-i="' + i + '"><span class="t"><b>' + esc(it.title) + '</b><small>' + esc(it.date) + (catOf(it) ? " · " + esc(catOf(it)) : "") + '</small></span>' + tagFor(it) + '</li>';
     }).join("") : '<li class="empty">' + (scriptVersion && scriptVersion < 4 ? "Cần cập nhật script trên máy tính để xem kho từ điện thoại." : "Chưa có mục lục – mở lại khi có mạng.") + '</li>';
     [].forEach.call(document.querySelectorAll("#h-new li.tap"), function (li) { li.onclick = function () { openItem(news[+li.dataset.i]); }; });
     var sent = (store("ebrain-sent") || []).slice(0, 5), today = d.toDateString();
@@ -423,7 +426,8 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   function openItem(it) {
     $("#sheet-panel").innerHTML = '<div class="grab"></div>' + tagFor(it) + '<h3>' + esc(it.title) + '</h3><p>' + esc(it.statement) + '</p>' +
       (it.note ? '<p class="hint">' + esc(it.note) + '</p>' : "") +
-      '<p class="hint">' + esc(it.date) + (it.topics && it.topics.length ? " · " + esc(it.topics.join(", ")) : "") + '</p>' +
+      '<p class="hint">' + esc(it.date) + (it.cats && it.cats.length ? " · Chủ đề: " + esc(it.cats.join(", ")) : "") + '</p>' +
+      (it.topics && it.topics.length ? '<p class="hint">Từ khóa: ' + esc(it.topics.join(", ")) + '</p>' : "") +
       (it.url ? '<p><a href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer" style="color:var(--navy2);font-weight:600">Mở bài gốc</a></p>' : "") +
       '<button class="btn dark" type="button" id="sheet-close" style="width:100%;margin-top:8px">Đóng</button>';
     $("#sheet").classList.add("on");
@@ -434,12 +438,29 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
 
   // ---------- Hoi ----------
   var askTimer = null, lastQ = "";
+  // chu de do app tu phan loai (may tinh gan khi tao Knowledge) – bam de xem bai cua chu de
+  function catOf(it) { return (it.cats && it.cats[0]) || ""; }
+  function renderCats() {
+    var counts = {};
+    index.items.forEach(function (it) { (it.cats || []).forEach(function (c) { counts[c] = (counts[c] || 0) + 1; }); });
+    var names = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b); });
+    if (!names.length) { $("#hoi-body").innerHTML = ""; return; }
+    $("#hoi-body").innerHTML = '<p class="hint" style="margin:4px">Chủ đề (app tự phân loại)</p><div class="cats">' +
+      names.map(function (n) { return '<button type="button" data-cat="' + esc(n) + '">' + esc(n) + '<b>' + counts[n] + '</b></button>'; }).join("") + '</div>';
+    [].forEach.call(document.querySelectorAll("#hoi-body [data-cat]"), function (b) {
+      b.onclick = function () {
+        var n = b.dataset.cat;
+        renderList(index.items.filter(function (it) { return (it.cats || []).indexOf(n) >= 0; }), "Chủ đề: " + n);
+      };
+    });
+  }
   function renderList(items, head) {
     $("#hoi-body").innerHTML = '<p class="hint" style="margin:4px">' + esc(head) + '</p>' + items.map(function (it, i) {
       return '<div class="card hit" data-i="' + i + '">' + tagFor(it) + '<h3>' + esc(it.title) + '</h3><p>' + esc(it.statement) + '</p></div>';
     }).join("");
     [].forEach.call(document.querySelectorAll("#hoi-body .hit"), function (c) { c.onclick = function () { openItem(items[+c.dataset.i]); }; });
   }
+  $("#q").addEventListener("input", function () { if (!$("#q").value.trim()) { lastQ = ""; renderCats(); } });
   $("#askform").onsubmit = function (e) {
     e.preventDefault();
     var q = $("#q").value.trim(); if (!q) return;
