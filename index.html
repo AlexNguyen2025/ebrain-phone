@@ -57,8 +57,10 @@ h2 a { margin-left: auto; color: var(--navy2); text-transform: none; letter-spac
 .hero span { font-size: 13px; color: #C9CEDD; }
 .searchbar { margin-top: 12px; display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; min-height: 52px; padding: 0 18px; color: var(--grey); width: 100%; box-shadow: var(--shadow-s); font-size: 15px; }
 .searchbar svg { width: 20px; height: 20px; flex: none; }
-.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
-.qa { background: var(--card); border: 1px solid var(--line); border-radius: 18px; min-height: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--navy); font-weight: 600; font-size: 13.5px; box-shadow: var(--shadow-s); }
+.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.qa { background: var(--card); border: 1px solid var(--line); border-radius: 18px; min-height: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--navy); font-weight: 600; font-size: 12.5px; box-shadow: var(--shadow-s); }
+.qa.cam { background: var(--gold, #FACC15); border-color: transparent; }
+.chip img { width: 36px; height: 36px; object-fit: cover; border-radius: 8px; }
 .qa svg { width: 24px; height: 24px; color: var(--amber); }
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
 .stat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; }
@@ -193,6 +195,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
       Tìm trong kho kiến thức…
     </button>
     <div class="quick">
+      <button class="qa cam" id="h-cam" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>Chụp ảnh</button>
       <button class="qa" id="h-paste" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Dán link</button>
       <button class="qa" id="h-type" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>Gõ ghi chú</button>
       <button class="qa" id="h-file" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15h6"/></svg>Gửi file</button>
@@ -214,9 +217,11 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
       <div id="interim"></div>
       <div class="row">
         <span id="files"></span>
+        <button class="tool" id="cam" type="button">📷 Chụp ảnh</button>
         <button class="tool" id="attach" type="button">＋ File</button>
         <button class="tool" id="more" type="button">Tiêu đề / ghi chú</button>
-        <input id="fileinput" type="file" accept=".docx,.pdf,.txt,.md" hidden>
+        <input id="fileinput" type="file" accept=".docx,.pdf,.txt,.md,image/*" hidden>
+        <input id="caminput" type="file" accept="image/*" capture="environment" hidden>
       </div>
       <div class="extra" id="extra">
         <input id="title" placeholder="Tiêu đề (bỏ trống: tự đặt)">
@@ -513,16 +518,53 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   function refresh() {
     var t = text.value.trim();
     buttons.forEach(function (b) { b.disabled = busy || (!t && !file); });
-    $("#files").innerHTML = file ? '<span class="chip"><span>' + esc(file.name) + '</span><button type="button" id="rmfile" aria-label="Bỏ file">×</button></span>' : "";
+    $("#files").innerHTML = file ? '<span class="chip">' + (file.preview ? '<img alt="" src="' + file.preview + '">' : "") + '<span>' + esc(file.isImage ? "Ảnh – thêm chú thích ở ô trên nếu muốn" : file.name) + '</span><button type="button" id="rmfile" aria-label="Bỏ file">×</button></span>' : "";
     var rm = $("#rmfile"); if (rm) rm.onclick = function () { file = null; refresh(); };
   }
   text.addEventListener("input", refresh);
   $("#more").onclick = function () { $("#extra").classList.toggle("open"); };
   $("#attach").onclick = function () { $("#fileinput").click(); };
+  // ---------- anh chup (J61): thu nho ~1600px JPEG ngay tren dien thoai -> gui nhanh, may tinh nho AI chep chu ----------
+  function shrink(f) {
+    return new Promise(function (ok, bad) {
+      var url = URL.createObjectURL(f), img = new Image();
+      img.onload = function () {
+        var k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+        var c = document.createElement("canvas");
+        c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(function (b) {
+          if (!b) return bad(new Error("Không xử lý được ảnh"));
+          var d = new Date(), name = "Anh " + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + "-" + pad(d.getMinutes()) + ".jpg";
+          var out = new File([b], name, { type: "image/jpeg" });
+          out.isImage = true; out.preview = c.toDataURL("image/jpeg", 0.4);
+          ok(out);
+        }, "image/jpeg", 0.82);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); bad(new Error("Không mở được ảnh")); };
+      img.src = url;
+    });
+  }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function takeImage(f) {
+    show("ok", "Đang chuẩn bị ảnh…");
+    shrink(f).then(function (out) {
+      file = out; refresh();
+      show("ok", "Ảnh đã sẵn sàng. Chọn <b>Công khai / Riêng tư / Không gửi</b> để gửi.");
+    }).catch(function (e) { show("err", esc(e.message)); });
+  }
+  $("#cam").onclick = function () { $("#caminput").click(); };
+  $("#h-cam").onclick = function () { go("nap"); $("#caminput").click(); };
+  $("#caminput").onchange = function (e) {
+    var f = e.target.files[0]; e.target.value = "";
+    if (f) takeImage(f);
+  };
   $("#fileinput").onchange = function (e) {
     var f = e.target.files[0]; e.target.value = "";
     if (!f) return;
-    if (!/\.(docx|pdf|txt|md)$/i.test(f.name)) { show("err", "Chỉ nhận Word (.docx), PDF, .txt, .md. Ảnh chưa nhận được."); return; }
+    if (/^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name)) { takeImage(f); return; }
+    if (!/\.(docx|pdf|txt|md)$/i.test(f.name)) { show("err", "Chỉ nhận ảnh, Word (.docx), PDF, .txt, .md."); return; }
     if (f.size > MAXB) { show("err", "File quá lớn (tối đa 15 MB)."); return; }
     file = f; refresh();
   };
@@ -544,14 +586,19 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     busy = true; refresh();
     var item = { qid: Date.now() + "-" + Math.random().toString(36).slice(2, 8), perm: perm, text: t,
                  title: $("#title").value.trim(), note: $("#note").value.trim() };
-    var label = (item.title || (file ? file.name : t.split("\n")[0])).slice(0, 80);
+    var label = (item.title || (file ? (file.isImage ? "📷 " + (t.split("\n")[0] || "Ảnh") : file.name) : t.split("\n")[0])).slice(0, 80);
     var p;
     if (file) {
-      show("ok", "Đang gửi file…");
+      show("ok", file.isImage ? "Đang gửi ảnh…" : "Đang gửi file…");
+      var isImg = file.isImage;
       p = readB64(file).then(function (b64) {
         item.file_name = file.name; item.file_b64 = b64;
         return api("phone_save", { item: item });
-      }).then(function () { remember(item.qid, label, perm, true); clearForm(); show("ok", "<b>Đã gửi ✓</b> Máy tính sẽ nhận trong vài phút."); refreshPending(); })
+      }).then(function () {
+        remember(item.qid, label, perm, true); clearForm();
+        show("ok", "<b>Đã gửi ✓</b> " + (isImg && perm !== "local" ? "Máy tính sẽ cho AI chép chữ trong ảnh rồi đưa vào kho." : "Máy tính sẽ nhận trong vài phút."));
+        refreshPending();
+      })
         .catch(function (e) { show("err", "Chưa gửi được file: " + esc(e.message || e) + ". Kiểm tra mạng rồi thử lại."); });
     } else {
       var q = queue(); q.push(item); store("ebrain-queue", q);
