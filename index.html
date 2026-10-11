@@ -466,6 +466,11 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     [].forEach.call(document.querySelectorAll("#hoi-body .hit"), function (c) { c.onclick = function () { openItem(items[+c.dataset.i]); }; });
   }
   $("#q").addEventListener("input", function () { if (!$("#q").value.trim()) { lastQ = ""; renderCats(); } });
+  // J62: go cau hoi (co dau ? hoac tu de hoi) -> hoi AI luon, khong can bam them "Nho AI"
+  function isQuestion(q) {
+    var f = " " + fold(q).replace(/[^a-z0-9?]+/g, " ") + " ";
+    return /\?\s*$/.test(q) || f.trim().split(" ").length >= 4 || / (gi|nao|bao nhieu|bao gio|khi nao|o dau|tai sao|vi sao|the nao|nhu nao|la ai|ai la|may|khong|chua|duoc khong) /.test(f);
+  }
   $("#askform").onsubmit = function (e) {
     e.preventDefault();
     var q = $("#q").value.trim(); if (!q) return;
@@ -478,9 +483,10 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     var ai = document.createElement("div");
     ai.innerHTML = scriptVersion && scriptVersion < 4
       ? '<div class="aibar"><span class="hint">Muốn AI tổng hợp: cập nhật script trên máy tính (tab Điện thoại).</span></div>'
-      : '<div class="aibar"><span class="hint">Nhờ AI tổng hợp câu trả lời từ Knowledge đã duyệt. Máy tính (phải đang bật) trả lời trong khoảng 1 phút.</span><button class="btn dark" id="askai" type="button">Nhờ AI</button></div><div id="answer"></div>';
+      : '<div class="aibar"><span class="hint">Nhờ AI tổng hợp câu trả lời từ Knowledge đã duyệt. Máy tính (phải đang bật) trả lời trong khoảng 10–20 giây.</span><button class="btn dark" id="askai" type="button">Nhờ AI</button></div><div id="answer"></div>';
     $("#hoi-body").insertBefore(ai, $("#hoi-body").children[1] || null);
     var b = $("#askai"); if (b) b.onclick = function () { askAI(q, b); };
+    if (b && hits.length && isQuestion(q)) askAI(q, b);
   };
   function askAI(q, btn) {
     btn.disabled = true;
@@ -492,14 +498,14 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
         tries++;
         api("phone_answer", { id: d.id, done: false }).then(function (r) {
           if (!r.ready) {
-            if (tries > 45) { clearInterval(askTimer); $("#answer").innerHTML = '<div class="card answer"><p class="hint">Máy tính chưa trả lời (có thể đang tắt). Câu hỏi vẫn được giữ – mở lại sau.</p></div>'; btn.disabled = false; }
+            if (tries > 90) { clearInterval(askTimer); $("#answer").innerHTML = '<div class="card answer"><p class="hint">Máy tính chưa trả lời (có thể đang tắt). Câu hỏi vẫn được giữ – mở lại sau.</p></div>'; btn.disabled = false; }
             return;
           }
           clearInterval(askTimer); btn.disabled = false;
           api("phone_answer", { id: d.id, done: true }).catch(function () {});
           showAnswer(JSON.parse(r.answer));
         }).catch(function () {});
-      }, 4000);
+      }, 2000);
     }).catch(function (e) { btn.disabled = false; $("#answer").innerHTML = '<div class="card answer"><p style="color:var(--err)">' + esc(e.message) + '</p></div>'; });
   }
   function showAnswer(a) {
