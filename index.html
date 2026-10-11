@@ -123,8 +123,8 @@ textarea::placeholder, input::placeholder { color: var(--grey); }
 /* ---- Hoi ---- */
 .askbox { position: sticky; top: calc(50px + env(safe-area-inset-top)); z-index: 5; background: var(--bg); padding: 2px 0 10px; }
 .askbox form { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 4px 4px 18px; box-shadow: var(--shadow); }
-.askbox input { min-height: 46px; font-size: 16px; }
-.askbox button { border: 0; border-radius: 999px; min-height: 46px; padding: 0 18px; background: var(--gold); color: var(--navy); font-weight: 700; }
+.askbox input { flex: 1 1 auto; min-width: 0; width: 100%; min-height: 48px; font-size: 16px; padding: 0 6px; }
+.askbox button { flex: none; border: 0; border-radius: 999px; min-height: 48px; padding: 0 18px; background: var(--gold); color: var(--navy); font-weight: 700; }
 .hit { padding: 16px; margin-top: 10px; }
 .hit h3 { margin: 6px 0 4px; font-size: 16.5px; color: var(--ink); line-height: 1.35; font-weight: 600; }
 .hit p { margin: 0; font-size: 14.5px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -223,7 +223,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
         <button class="tool" id="cam" type="button">📷 Chụp ảnh</button>
         <button class="tool" id="attach" type="button">＋ File</button>
         <button class="tool" id="more" type="button">Tiêu đề / ghi chú</button>
-        <input id="fileinput" type="file" accept=".docx,.pdf,.txt,.md,image/*" hidden>
+        <input id="fileinput" type="file" accept=".docx,.doc,.pdf,.txt,.md,image/*" multiple hidden>
         <input id="caminput" type="file" accept="image/*" capture="environment" hidden>
       </div>
       <div class="extra" id="extra">
@@ -276,7 +276,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   var $ = function (s) { return document.querySelector(s); };
   var text = $("#text"), msg = $("#msg"), buttons = [].slice.call(document.querySelectorAll(".perm"));
   var MIN = 10, MAXB = 15 * 1024 * 1024;
-  var file = null, busy = false, scriptVersion = 0;
+  var files = [], busy = false, scriptVersion = 0;
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function isUrl(s) { return /^https?:\/\/\S+$/i.test(s.trim()); }
   function show(kind, html) { msg.className = kind; msg.innerHTML = html; if (kind) setTimeout(function () { if (msg.innerHTML === html) msg.className = ""; }, 6000); }
@@ -559,11 +559,20 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   // ---------- Nap ----------
   function refresh() {
     var t = text.value.trim();
-    buttons.forEach(function (b) { b.disabled = busy || (!t && !file); });
-    $("#files").innerHTML = file ? '<span class="chip">' + (file.preview ? '<img alt="" src="' + file.preview + '">' : "") + '<span>' + esc(file.isImage ? "Ảnh – thêm chú thích ở ô trên nếu muốn" : file.name) + '</span><button type="button" id="rmfile" aria-label="Bỏ file">×</button></span>' : "";
-    var rm = $("#rmfile"); if (rm) rm.onclick = function () { file = null; refresh(); };
+    buttons.forEach(function (b) { b.disabled = busy || (!t && !files.length); });
+    var n = files.length;
+    $("#files").innerHTML = files.map(function (f, i) {
+      var name = f.isImage ? (n > 1 ? "Ảnh " + (i + 1) : "Ảnh – thêm chú thích ở ô trên nếu muốn") : f.name;
+      return '<span class="chip">' + (f.preview ? '<img alt="" src="' + f.preview + '">' : "") +
+        '<span>' + esc(name) + '</span>' +
+        '<button type="button" data-rm="' + i + '" aria-label="Bỏ">×</button></span>';
+    }).join("");
   }
   text.addEventListener("input", refresh);
+  $("#files").addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-rm]") : null;
+    if (b) { files.splice(+b.dataset.rm, 1); refresh(); }
+  });
   $("#more").onclick = function () { $("#extra").classList.toggle("open"); };
   $("#attach").onclick = function () { $("#fileinput").click(); };
   // ---------- anh chup (J61): thu nho ~1600px JPEG ngay tren dien thoai -> gui nhanh, may tinh nho AI chep chu ----------
@@ -593,28 +602,39 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     });
   }
   function pad(n) { return (n < 10 ? "0" : "") + n; }
-  function takeImage(f) {
-    show("ok", "Đang chuẩn bị ảnh…");
-    shrink(f).then(function (out) {
-      file = out; refresh();
-      show("ok", (out.codes.length ? "Đã đọc mã: <b>" + esc(out.codes.join(", ")) + "</b>. " : "") +
+  function isImageFile(f) { return /^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name); }
+  // nhieu anh 1 luc: thu nho tung anh song song roi them het vao danh sach
+  function addImages(list) {
+    var arr = [].slice.call(list).filter(Boolean);
+    if (!arr.length) return;
+    show("ok", arr.length > 1 ? "Đang chuẩn bị " + arr.length + " ảnh…" : "Đang chuẩn bị ảnh…");
+    Promise.all(arr.map(shrink)).then(function (outs) {
+      outs.forEach(function (o) { files.push(o); });
+      refresh();
+      var codes = [];
+      outs.forEach(function (o) { (o.codes || []).forEach(function (c) { if (codes.indexOf(c) < 0) codes.push(c); }); });
+      show("ok", (codes.length ? "Đã đọc mã: <b>" + esc(codes.join(", ")) + "</b>. " : "") +
+        (outs.length > 1 ? "Đã thêm <b>" + outs.length + " ảnh</b>. " : "") +
         "Gõ/nói vài chữ chú thích nếu muốn (vd. “chỗ đậu xe”), rồi chọn <b>Công khai / Riêng tư / Không gửi</b>. " +
         "Không gửi = AI không đọc ảnh, chỉ tìm lại được theo chú thích.");
-    }).catch(function (e) { show("err", esc(e.message)); });
+    }).catch(function (e) { show("err", esc(e.message || "Không xử lý được ảnh")); });
   }
   $("#cam").onclick = function () { $("#caminput").click(); };
   $("#h-cam").onclick = function () { go("nap"); $("#caminput").click(); };
-  $("#caminput").onchange = function (e) {
-    var f = e.target.files[0]; e.target.value = "";
-    if (f) takeImage(f);
-  };
+  $("#caminput").onchange = function (e) { addImages(e.target.files); e.target.value = ""; };
   $("#fileinput").onchange = function (e) {
-    var f = e.target.files[0]; e.target.value = "";
-    if (!f) return;
-    if (/^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name)) { takeImage(f); return; }
-    if (!/\.(docx|pdf|txt|md)$/i.test(f.name)) { show("err", "Chỉ nhận ảnh, Word (.docx), PDF, .txt, .md."); return; }
-    if (f.size > MAXB) { show("err", "File quá lớn (tối đa 15 MB)."); return; }
-    file = f; refresh();
+    var list = [].slice.call(e.target.files); e.target.value = "";
+    if (!list.length) return;
+    var imgs = [], errs = [];
+    list.forEach(function (f) {
+      if (isImageFile(f)) imgs.push(f);
+      else if (!/\.(docx|doc|pdf|txt|md)$/i.test(f.name)) errs.push(esc(f.name) + ": chỉ nhận ảnh, Word (.docx, .doc), PDF, .txt, .md.");
+      else if (f.size > MAXB) errs.push(esc(f.name) + ": file quá lớn (tối đa 15 MB).");
+      else files.push(f);
+    });
+    if (imgs.length) addImages(imgs);
+    refresh();
+    if (errs.length) show("err", errs.join("<br>"));
   };
   buttons.forEach(function (b) {
     b.addEventListener("touchstart", function () { $("#warn").style.display = b.dataset.perm === "local" ? "block" : "none"; }, { passive: true });
@@ -626,54 +646,73 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   function save(perm) {
     stopMic();
     var t = text.value.trim();
-    if (busy || (!t && !file)) return;
-    if (!file && perm !== "local" && !isUrl(t) && t.replace(/\s/g, "").length < MIN) {
+    if (busy || (!t && !files.length)) return;
+    if (!files.length && perm !== "local" && !isUrl(t) && t.replace(/\s/g, "").length < MIN) {
       show("err", "Ghi chú quá ngắn (cần ít nhất " + MIN + " chữ cái/số).");
       return;
     }
     busy = true; refresh();
-    var item = { qid: Date.now() + "-" + Math.random().toString(36).slice(2, 8), perm: perm, text: t,
-                 title: $("#title").value.trim(), note: $("#note").value.trim() };
-    var label = (item.title || (file ? (file.isImage ? "📷 " + (t.split("\n")[0] || "Ảnh") : file.name) : t.split("\n")[0])).slice(0, 80);
-    var p;
-    if (file) {
-      show("ok", file.isImage ? "Đang gửi ảnh…" : "Đang gửi file…");
-      var isImg = file.isImage;
-      if (file.codes && file.codes.length)
-        item.note = (item.note ? item.note + "\n" : "") + "Mã vạch/QR (điện thoại đọc): " + file.codes.join(", ");
-      p = readB64(file).then(function (b64) {
-        item.file_name = file.name; item.file_b64 = b64;
-        return api("phone_save", { item: item });
-      }).then(function (res) {
-        remember(item.qid, label, perm, true); clearForm();
-        show("ok", "<b>Đã gửi ✓</b> " + (res && res.ocr_title ? "AI đã đọc ảnh: <b>" + esc(res.ocr_title) + "</b> – hỏi lại được ngay." :
-          isImg && perm !== "local" ? "Máy tính sẽ cho AI chép chữ trong ảnh rồi đưa vào kho." : "Máy tính sẽ nhận trong vài phút."));
-        refreshPending();
-      })
-        .catch(function (e) {
-          // mat song: giu anh/file nho trong may, tu gui khi co mang (khong mat anh vua chup)
-          if (item.file_b64 && item.file_b64.length < 3000000) {
-            try {
-              var q = queue(); q.push(item); localStorage.setItem("ebrain-queue", JSON.stringify(q));
-              remember(item.qid, label, perm, false); clearForm();
-              show("ok", "<b>Đã lưu trong máy ✓</b> Chưa có mạng – sẽ tự gửi khi có mạng.");
-              return;
-            } catch (x) {}
-          }
-          show("err", "Chưa gửi được file: " + esc(e.message || e) + ". Kiểm tra mạng rồi thử lại.");
-        });
-    } else {
-      var q = queue(); q.push(item); store("ebrain-queue", q);
-      remember(item.qid, label, perm, false);
-      clearForm();
-      p = flush().then(function () {
-        var still = queue().some(function (x) { return x.qid === item.qid; });
-        show("ok", still ? "<b>Đã lưu trong máy ✓</b> Chưa có mạng – sẽ tự gửi khi có mạng." : "<b>Đã gửi ✓</b> Máy tính sẽ nhận trong vài phút.");
-      });
+    var baseTitle = $("#title").value.trim(), baseNote = $("#note").value.trim();
+    var toSend = files.slice(), single = toSend.length === 1;
+    var hasImg = toSend.some(function (f) { return f.isImage; });
+    var allImg = toSend.length > 0 && toSend.every(function (f) { return f.isImage; });
+    // moi file = 1 muc rieng; chu thich o o tren di kem tung anh (nen chu ngan van gui duoc)
+    var items = toSend.map(function (f, i) {
+      var it = { qid: Date.now() + "-" + i + "-" + Math.random().toString(36).slice(2, 8),
+                 perm: perm, text: f.isImage ? t : "", note: baseNote };
+      if (single) it.title = baseTitle;
+      if (f.codes && f.codes.length) it.note = (it.note ? it.note + "\n" : "") + "Mã vạch/QR (điện thoại đọc): " + f.codes.join(", ");
+      var cap = (it.text || "").split("\n")[0];
+      it._label = ((single && baseTitle) ? baseTitle
+        : f.isImage ? "📷 " + (cap || (single ? "Ảnh" : "Ảnh " + (i + 1)))
+        : f.name).slice(0, 80);
+      it._file = f;
+      return it;
+    });
+    // chi gui chu thanh muc rieng khi khong co anh di kem (voi anh, chu la chu thich)
+    var textItem = (t && !hasImg) ? { qid: Date.now() + "-t-" + Math.random().toString(36).slice(2, 8),
+      perm: perm, text: t, title: baseTitle, note: baseNote,
+      _label: (baseTitle || t.split("\n")[0]).slice(0, 80) } : null;
+    var errs = [], okN = 0, queuedN = 0, failed = [];
+
+    function sendFile(i) {
+      if (i >= items.length) return Promise.resolve();
+      var it = items[i], f = it._file, lbl = it._label; delete it._file; delete it._label;
+      show("ok", items.length > 1 ? "Đang gửi ảnh " + (i + 1) + "/" + items.length + "…" : (f.isImage ? "Đang gửi ảnh…" : "Đang gửi file…"));
+      return readB64(f).then(function (b64) {
+        it.file_name = f.name; it.file_b64 = b64;
+        return api("phone_save", { item: it });
+      }).then(function () {
+        remember(it.qid, lbl, perm, true); okN++;
+      }).catch(function (e) {
+        // mat song: giu anh/file nho trong may, tu gui khi co mang (khong mat anh vua chup)
+        if (it.file_b64 && it.file_b64.length < 3000000) {
+          try { var q = queue(); q.push(it); localStorage.setItem("ebrain-queue", JSON.stringify(q)); remember(it.qid, lbl, perm, false); queuedN++; return; } catch (x) {}
+        }
+        failed.push(f); errs.push(esc(f.name) + ": " + esc(e.message || e));
+      }).then(function () { return sendFile(i + 1); });
     }
+
+    var p = sendFile(0).then(function () {
+      if (!textItem) return;
+      var q = queue(); q.push(textItem); store("ebrain-queue", q);
+      remember(textItem.qid, textItem._label, perm, false);
+      return flush().then(function () {
+        if (queue().some(function (x) { return x.qid === textItem.qid; })) queuedN++; else okN++;
+      });
+    }).then(function () {
+      files = failed;
+      if (!errs.length) { text.value = ""; $("#title").value = ""; $("#note").value = ""; }
+      refreshPending();
+      var parts = [];
+      if (okN) parts.push("<b>Đã gửi " + okN + (okN > 1 ? " mục ✓" : " ✓") + "</b> " +
+        (allImg && perm !== "local" ? "Máy tính sẽ cho AI chép chữ trong ảnh rồi đưa vào kho." : "Máy tính sẽ nhận trong vài phút."));
+      if (queuedN) parts.push("<b>Đã lưu " + queuedN + (queuedN > 1 ? " mục" : "") + " trong máy ✓</b> Chưa có mạng – sẽ tự gửi khi có mạng.");
+      if (errs.length) show("err", errs.concat(parts).join("<br>"));
+      else if (parts.length) show("ok", parts.join(" "));
+    });
     p.then(function () { busy = false; refresh(); if (navigator.vibrate) navigator.vibrate(30); });
   }
-  function clearForm() { text.value = ""; $("#title").value = ""; $("#note").value = ""; file = null; }
   function remember(qid, title, perm, sent) {
     var items = store("ebrain-sent") || [], d = new Date();
     items.unshift({ qid: qid, at: hm(d), day: d.toDateString(), title: title, perm: perm, sent: sent });
@@ -739,7 +778,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   // Dang mo app: 30 giay/lan lay so cho nhan + muc luc moi (muc luc chi tai khi co thay doi).
   // Ban app moi tren GitHub: tu tai lai khi ban dang o Trang chu va khong go/noi/cho AI.
   function quiet() {
-    return current === "home" && !busy && !file && !text.value.trim() && !listening && !askTimer;
+    return current === "home" && !busy && !files.length && !text.value.trim() && !listening && !askTimer;
   }
   var shellSig = "";
   function checkUpdate() {
