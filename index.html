@@ -14,26 +14,72 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* OPS Brand v8 */
+/* OPS Brand v8 – navy / gold / amber / cyan, Inter, nut tron, the bo 20 */
 :root {
   --navy: #0F1A3A; --navy2: #192852; --gold: #FACC15; --amber: #F59E0B; --cyan: #7DD3D7;
   --bg: #F8F6F0; --card: #FFFFFF; --ink: #0F1A3A; --body: #41496A; --grey: #78809A; --line: #E4E6F0;
-  --gold-t: #FBF3D3; --amber-t: #FCEBCB; --cyan-t: #E4F4F5; --err: #B42318; --err-t: #FDECEA;
-  --shadow: 0 8px 24px rgba(15, 26, 58, .10);
+  --gold-t: #FBF3D3; --amber-t: #FCEBCB; --cyan-t: #E4F4F5; --grey-t: #EEF0F5; --err: #B42318; --err-t: #FDECEA;
+  --amber-ink: #9A5B00; --cyan-ink: #0E6E73;
+  --shadow: 0 8px 24px rgba(15, 26, 58, .10); --shadow-s: 0 2px 10px rgba(15, 26, 58, .06);
+  --nav: calc(68px + env(safe-area-inset-bottom));
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--body); }
-body { font: 16px/1.5 Inter, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif; padding-bottom: calc(132px + env(safe-area-inset-bottom)); -webkit-font-smoothing: antialiased; }
-header { background: var(--navy); color: #fff; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 5; }
-header svg { width: 32px; height: 32px; flex: none; }
-header b { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+body { font: 16px/1.5 Inter, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: calc(var(--nav) + 16px); }
+button { font: inherit; cursor: pointer; }
+header { background: var(--navy); color: #fff; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
+header svg { width: 30px; height: 30px; flex: none; }
+header b { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
 header b span { color: var(--gold); }
-.pending { margin-left: auto; font-size: 12.5px; color: var(--cyan); text-align: right; line-height: 1.3; }
-.pending.off { color: #FFB4A8; }
-main { padding: 16px; max-width: 560px; margin: 0 auto; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+.sync { margin-left: auto; font-size: 12px; color: var(--cyan); display: inline-flex; align-items: center; gap: 6px; }
+.sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); }
+.sync.off { color: #FFB4A8; } .sync.off i { background: #FF6B57; }
+main { max-width: 560px; margin: 0 auto; padding: 16px; }
+.view { display: none; } .view.on { display: block; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow-s); }
+h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--amber); margin: 24px 4px 8px; font-weight: 700; display: flex; align-items: center; }
+h2 a { margin-left: auto; color: var(--navy2); text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 600; text-decoration: none; }
+.hint { font-size: 13px; color: var(--grey); line-height: 1.45; }
+.tag { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; background: var(--amber-t); color: var(--amber-ink); }
+.tag.known { background: var(--cyan-t); color: var(--cyan-ink); }
+.tag.priv { background: var(--navy); color: var(--gold); }
+#msg { display: none; margin: 12px 0 0; padding: 12px 16px; border-radius: 16px; font-size: 15px; }
+#msg.ok { display: block; background: var(--gold-t); color: var(--navy); }
+#msg.err { display: block; background: var(--err-t); color: var(--err); }
+
+/* ---- Trang chu ---- */
+.hello { margin: 2px 4px 14px; }
+.hello b { display: block; font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+.hero { background: var(--navy); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; color: #fff; box-shadow: var(--shadow); border: 0; width: 100%; text-align: left; }
+.hero .mic { width: 72px; height: 72px; border-radius: 50%; background: var(--gold); color: var(--navy); display: grid; place-items: center; flex: none; box-shadow: 0 0 0 6px rgba(250, 204, 21, .18); }
+.hero .mic svg { width: 32px; height: 32px; }
+.hero b { font-size: 19px; display: block; }
+.hero span { font-size: 13px; color: #C9CEDD; }
+.searchbar { margin-top: 12px; display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; min-height: 52px; padding: 0 18px; color: var(--grey); width: 100%; box-shadow: var(--shadow-s); font-size: 15px; }
+.searchbar svg { width: 20px; height: 20px; flex: none; }
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.qa { background: var(--card); border: 1px solid var(--line); border-radius: 18px; min-height: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--navy); font-weight: 600; font-size: 13.5px; box-shadow: var(--shadow-s); }
+.qa svg { width: 24px; height: 24px; color: var(--amber); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; }
+.stat b { display: block; font-size: 22px; color: var(--ink); font-weight: 700; line-height: 1.2; }
+.stat span { font-size: 12.5px; color: var(--grey); }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink); min-height: 56px; }
+.list li:first-child { border-top: 0; }
+.list li.tap:active { background: var(--grey-t); }
+.list .t { flex: 1; min-width: 0; }
+.list .t b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list .t small { color: var(--grey); font-size: 12.5px; }
+.list time { color: var(--grey); font-size: 12.5px; min-width: 40px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.d-public { background: var(--gold); } .d-private { background: var(--navy); } .d-local { background: var(--grey); }
+.q { font-size: 12px; color: var(--amber-ink); font-weight: 600; white-space: nowrap; }
+.empty { color: var(--grey); }
+
+/* ---- Nap ---- */
 textarea, input { width: 100%; font: inherit; color: var(--ink); background: transparent; border: 0; outline: 0; resize: none; }
-#text { min-height: 28vh; padding: 16px; font-size: 17px; line-height: 1.55; display: block; }
+#text { min-height: 26vh; padding: 16px; font-size: 17px; line-height: 1.55; display: block; }
 textarea::placeholder, input::placeholder { color: var(--grey); }
 #interim { display: none; padding: 0 16px 12px; color: var(--grey); font-style: italic; font-size: 15px; }
 #interim.on { display: block; }
@@ -41,14 +87,14 @@ textarea::placeholder, input::placeholder { color: var(--grey); }
 .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--cyan-t); color: var(--navy); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 500; max-width: 100%; }
 .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip button { border: 0; background: none; font-size: 20px; line-height: 1; color: var(--grey); min-width: 28px; min-height: 28px; }
-.tool { border: 1px solid var(--line); background: var(--card); color: var(--navy); border-radius: 999px; min-height: 44px; padding: 0 16px; font: 600 15px Inter, sans-serif; }
+.tool { border: 1px solid var(--line); background: var(--card); color: var(--navy); border-radius: 999px; min-height: 44px; padding: 0 16px; font-weight: 600; font-size: 15px; }
 .extra { display: none; padding: 0 12px 12px; gap: 8px; flex-direction: column; }
 .extra.open { display: flex; }
 .extra input, .extra textarea { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); min-height: 48px; }
 .extra textarea { min-height: 72px; }
-.perms { display: grid; gap: 10px; margin-top: 16px; }
-.perm { min-height: 64px; border-radius: 999px; border: 1.5px solid transparent; font: 600 17px Inter, sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 22px; text-align: left; }
-.perm small { display: block; font: 400 12.5px Inter, sans-serif; opacity: .85; margin-top: 1px; }
+.perms { display: grid; gap: 10px; margin-top: 14px; }
+.perm { min-height: 62px; border-radius: 999px; border: 1.5px solid transparent; font-weight: 600; font-size: 17px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 22px; text-align: left; }
+.perm small { display: block; font-weight: 400; font-size: 12.5px; opacity: .85; margin-top: 1px; }
 .perm svg { width: 22px; height: 22px; flex: none; }
 .p-public { background: var(--gold); color: var(--navy); }
 .p-private { background: var(--navy); color: var(--gold); }
@@ -56,35 +102,57 @@ textarea::placeholder, input::placeholder { color: var(--grey); }
 .p-local { background: var(--card); color: var(--navy); border-color: var(--line); }
 .perm:active { transform: scale(.98); }
 .perm:disabled { opacity: .4; }
-#msg { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 16px; font-size: 15px; }
-#msg.ok { display: block; background: var(--gold-t); color: var(--navy); }
-#msg.err { display: block; background: var(--err-t); color: var(--err); }
 .warn { margin-top: 10px; background: var(--amber-t); color: var(--navy); border-radius: 16px; padding: 12px 14px; font-size: 13.5px; display: none; }
-h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--amber); margin: 28px 4px 8px; font-weight: 700; }
-.list { list-style: none; margin: 0; padding: 0; }
-.list li { display: flex; gap: 12px; align-items: baseline; padding: 14px 16px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink); }
-.list li:first-child { border-top: 0; }
-.list time { color: var(--grey); font-size: 13px; min-width: 42px; }
-.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; align-self: center; }
-.d-public { background: var(--gold); } .d-private { background: var(--navy); } .d-local { background: var(--grey); }
-.q { font-size: 12px; color: var(--amber); font-weight: 600; margin-left: auto; white-space: nowrap; }
-.empty { color: var(--grey); }
-.hint { font-size: 13px; color: var(--grey); }
-/* ---- nut micro to (bam la noi) ---- */
-.micbar { position: fixed; left: 0; right: 0; bottom: 0; padding: 14px 16px calc(16px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--bg) 70%, rgba(248, 246, 240, 0)); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 6; pointer-events: none; }
-#mic { pointer-events: auto; width: 84px; height: 84px; border-radius: 50%; border: 0; background: var(--navy); color: var(--gold); display: grid; place-items: center; box-shadow: 0 10px 28px rgba(15, 26, 58, .28), inset 0 0 0 4px var(--gold); }
-#mic svg { width: 36px; height: 36px; }
-#mic.on { background: var(--err); color: #fff; box-shadow: 0 0 0 0 rgba(180, 35, 24, .5), inset 0 0 0 4px #fff; animation: ring 1.4s ease-out infinite; }
+.micfab { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav) + 14px); z-index: 9; display: none; flex-direction: column; align-items: center; gap: 4px; }
+.micfab.on { display: flex; }
+#mic { width: 80px; height: 80px; border-radius: 50%; border: 0; background: var(--navy); color: var(--gold); display: grid; place-items: center; box-shadow: 0 10px 28px rgba(15, 26, 58, .28), inset 0 0 0 4px var(--gold); }
+#mic svg { width: 34px; height: 34px; }
+#mic.on { background: var(--err); color: #fff; animation: ring 1.4s ease-out infinite; }
 @keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(180, 35, 24, .45), inset 0 0 0 4px #fff; } 100% { box-shadow: 0 0 0 22px rgba(180, 35, 24, 0), inset 0 0 0 4px #fff; } }
-.miclabel { font-size: 13px; font-weight: 600; color: var(--navy); background: rgba(255, 255, 255, .9); padding: 2px 12px; border-radius: 999px; }
+.miclabel { font-size: 12.5px; font-weight: 600; color: var(--navy); background: rgba(255, 255, 255, .92); padding: 2px 12px; border-radius: 999px; }
+#v-nap { padding-bottom: 120px; }
+
+/* ---- Hoi ---- */
+.askbox { position: sticky; top: calc(50px + env(safe-area-inset-top)); z-index: 5; background: var(--bg); padding: 2px 0 10px; }
+.askbox form { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 4px 4px 18px; box-shadow: var(--shadow); }
+.askbox input { min-height: 46px; font-size: 16px; }
+.askbox button { border: 0; border-radius: 999px; min-height: 46px; padding: 0 18px; background: var(--gold); color: var(--navy); font-weight: 700; }
+.hit { padding: 16px; margin-top: 10px; }
+.hit h3 { margin: 6px 0 4px; font-size: 16.5px; color: var(--ink); line-height: 1.35; font-weight: 600; }
+.hit p { margin: 0; font-size: 14.5px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.aibar { margin-top: 12px; background: var(--cyan-t); border-radius: 20px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.aibar .hint { flex: 1; min-width: 180px; color: var(--body); }
+.btn { border: 0; border-radius: 999px; min-height: 48px; padding: 0 22px; font-weight: 700; font-size: 15px; background: var(--gold); color: var(--navy); }
+.btn.dark { background: var(--navy); color: var(--gold); }
+.btn:disabled { opacity: .5; }
+.answer { margin-top: 12px; padding: 16px; border: 1.5px solid var(--gold); box-shadow: var(--shadow); }
+.answer h4 { margin: 0 0 10px; font-size: 11.5px; color: var(--amber); text-transform: uppercase; letter-spacing: .08em; }
+.pt { margin: 0 0 12px; color: var(--ink); font-size: 15px; }
+.pt small { display: block; color: var(--grey); font-size: 12.5px; margin-top: 2px; }
+.busy { display: flex; align-items: center; gap: 10px; color: var(--grey); font-size: 14px; }
+.busy::before { content: ""; width: 16px; height: 16px; border: 2px solid var(--amber); border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- chi tiet ---- */
+#sheet { position: fixed; inset: 0; background: rgba(15, 26, 58, .45); z-index: 30; display: none; align-items: flex-end; }
+#sheet.on { display: flex; }
+#sheet .panel { background: var(--card); width: 100%; max-height: 85vh; overflow: auto; border-radius: 24px 24px 0 0; padding: 20px 20px calc(24px + env(safe-area-inset-bottom)); }
+#sheet h3 { margin: 8px 0; color: var(--ink); font-size: 20px; line-height: 1.35; }
+#sheet p { color: var(--body); font-size: 15.5px; }
+#sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: -6px auto 12px; }
+
+/* ---- thanh duoi ---- */
+nav.bottom { position: fixed; left: 0; right: 0; bottom: 0; height: var(--nav); padding-bottom: env(safe-area-inset-bottom); background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, 1fr); z-index: 20; }
+nav.bottom button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--grey); font-size: 12px; font-weight: 600; }
+nav.bottom svg { width: 24px; height: 24px; }
+nav.bottom button.on { color: var(--navy); }
+nav.bottom button.on svg { color: var(--amber); }
+nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border-radius: 999px; }
+
 /* ---- ket noi lan dau ---- */
-#pair { display: none; }
-#pair.on { display: block; }
-#app.off { display: none; }
 .pair { padding: 20px; }
 .pair h3 { margin: 0 0 6px; color: var(--ink); font-size: 20px; }
 .pair input { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); min-height: 48px; margin: 12px 0; }
-.btn { border: 0; border-radius: 999px; min-height: 48px; padding: 0 24px; font: 600 16px Inter, sans-serif; background: var(--gold); color: var(--navy); }
 </style>
 </head>
 <body>
@@ -96,18 +164,48 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
     <path d="M23 33l6.5 6.5L42 27" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
   <b>OPS <span>eBrain</span></b>
-  <div class="pending" id="pending"></div>
+  <span class="sync" id="sync"><i></i><span>…</span></span>
 </header>
 
 <main>
-  <div class="card pair" id="pair">
-    <h3>Kết nối với máy tính</h3>
-    <p class="hint">Trên máy tính: trang nạp → tab <b>Điện thoại</b> → quét mã QR bằng camera, hoặc bấm <b>Sao chép link</b> rồi dán vào đây.</p>
-    <input id="pairlink" placeholder="Dán link kết nối…" autocomplete="off">
-    <button class="btn" id="pairbtn" type="button">Kết nối</button>
+  <!-- ket noi lan dau -->
+  <div class="view" id="v-pair">
+    <div class="card pair">
+      <h3>Kết nối với máy tính</h3>
+      <p class="hint">Trên máy tính: trang nạp → tab <b>Điện thoại</b> → quét mã QR bằng camera, hoặc bấm <b>Sao chép link</b> rồi dán vào đây.</p>
+      <input id="pairlink" placeholder="Dán link kết nối…" autocomplete="off">
+      <button class="btn" id="pairbtn" type="button">Kết nối</button>
+    </div>
   </div>
 
-  <div id="app">
+  <!-- TRANG CHU -->
+  <div class="view" id="v-home">
+    <div class="hello"><span class="hint" id="today"></span><b id="greet">Xin chào</b></div>
+    <button class="hero" id="h-mic" type="button">
+      <span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
+      <span><b>Bấm để nói</b><span>Nói tiếng Việt – chữ hiện ngay, rồi chọn cách lưu</span></span>
+    </button>
+    <button class="searchbar" id="h-search" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      Tìm trong kho kiến thức…
+    </button>
+    <div class="quick">
+      <button class="qa" id="h-paste" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Dán link</button>
+      <button class="qa" id="h-type" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>Gõ ghi chú</button>
+      <button class="qa" id="h-file" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15h6"/></svg>Gửi file</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="s-pend">–</b><span id="s-pend-l">chờ máy tính nhận</span></div>
+      <div class="stat"><b id="s-kn">–</b><span id="s-kn-l">Knowledge trong kho</span></div>
+    </div>
+    <h2>Mới trong kho<a href="#" id="h-more">Xem tất cả</a></h2>
+    <div class="card"><ul class="list" id="h-new"></ul></div>
+    <h2>Vừa gửi từ điện thoại</h2>
+    <div class="card"><ul class="list" id="h-sent"></ul></div>
+  </div>
+
+  <!-- NAP -->
+  <div class="view" id="v-nap">
     <div class="card">
       <textarea id="text" placeholder="Bấm micro bên dưới để nói, hoặc dán link / gõ ghi chú…"></textarea>
       <div id="interim"></div>
@@ -122,7 +220,6 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
         <textarea id="note" placeholder="Vì sao muốn giữ (không bắt buộc)"></textarea>
       </div>
     </div>
-
     <div class="perms">
       <button class="perm p-public" data-perm="public" disabled><span>Công khai<small>Bài báo, kiến thức phổ biến · AI miễn phí</small></span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg></button>
@@ -132,20 +229,34 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg></button>
     </div>
     <div class="warn" id="warn">Ghi chú đi qua <b>Google Drive của bạn</b> vài phút rồi về máy tính và bị xóa khỏi Drive. Số CCCD, giấy tờ quan trọng nên nhập trên máy tính; đừng đọc chúng bằng micro.</div>
-    <div id="msg" role="status"></div>
-
-    <h2>Đã gửi từ điện thoại</h2>
-    <div class="card"><ul class="list" id="list"></ul></div>
-    <p class="hint" style="margin:12px 4px">Mất sóng vẫn ghi được: ghi chú chờ trong máy và tự gửi khi có mạng. Máy tính lấy về khoảng 2 phút một lần (máy phải đang bật).</p>
   </div>
+
+  <!-- HOI -->
+  <div class="view" id="v-hoi">
+    <div class="askbox"><form id="askform">
+      <input id="q" type="search" autocomplete="off" placeholder="Hỏi hoặc tìm… (không dấu cũng được)">
+      <button type="submit">Tìm</button>
+    </form></div>
+    <div id="hoi-body"></div>
+  </div>
+
+  <div id="msg" role="status"></div>
 </main>
 
-<div class="micbar" id="micbar">
+<div class="micfab" id="micfab">
   <button id="mic" type="button" aria-label="Bấm để nói">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
   </button>
   <span class="miclabel" id="miclabel">Bấm để nói</span>
 </div>
+
+<div id="sheet"><div class="panel" id="sheet-panel"></div></div>
+
+<nav class="bottom" id="nav">
+  <button data-v="home" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg><span>Trang chủ</span></button>
+  <button data-v="nap" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Nạp</span></button>
+  <button data-v="hoi" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Hỏi</span></button>
+</nav>
 
 <script>
 (function () {
@@ -153,16 +264,16 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
   var $ = function (s) { return document.querySelector(s); };
   var text = $("#text"), msg = $("#msg"), buttons = [].slice.call(document.querySelectorAll(".perm"));
   var MIN = 10, MAXB = 15 * 1024 * 1024;
-  var file = null, busy = false;
-  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var file = null, busy = false, scriptVersion = 0;
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function isUrl(s) { return /^https?:\/\/\S+$/i.test(s.trim()); }
-  function show(kind, html) { msg.className = kind; msg.innerHTML = html; }
+  function show(kind, html) { msg.className = kind; msg.innerHTML = html; if (kind) setTimeout(function () { if (msg.innerHTML === html) msg.className = ""; }, 6000); }
   function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+  function hm(d) { return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
 
-  // ---------- ket noi: link tu QR co dang ...#u=<web app>&k=<khoa dien thoai> ----------
+  // ---------- ket noi: link QR ...#u=<web app>&k=<khoa dien thoai> ----------
   function parsePair(s) {
-    var h = String(s || "");
-    var i = h.indexOf("#"); if (i >= 0) h = h.slice(i + 1);
+    var h = String(s || ""), i = h.indexOf("#"); if (i >= 0) h = h.slice(i + 1);
     var p = {};
     h.split("&").forEach(function (kv) { var j = kv.indexOf("="); if (j > 0) p[kv.slice(0, j)] = decodeURIComponent(kv.slice(j + 1)); });
     if (/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(p.u || "") && (p.k || "").length > 20) return { u: p.u, k: p.k };
@@ -171,54 +282,213 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
   var cfg = store("ebrain-cfg");
   var fromHash = parsePair(location.hash);
   if (fromHash) { cfg = fromHash; store("ebrain-cfg", cfg); history.replaceState(null, "", location.pathname); }
-  function showPair(on) { $("#pair").classList.toggle("on", on); $("#app").classList.toggle("off", on); $("#micbar").style.display = on ? "none" : ""; }
-  showPair(!cfg);
   $("#pairbtn").onclick = function () {
     var c = parsePair($("#pairlink").value);
     if (!c) { alert("Link không đúng. Sao chép lại link trong tab Điện thoại trên máy tính."); return; }
-    cfg = c; store("ebrain-cfg", cfg); showPair(false); pending(); flush();
+    cfg = c; store("ebrain-cfg", cfg); go("home"); syncAll();
   };
+
+  // ---------- dieu huong ----------
+  var current = "home";
+  function go(v) {
+    if (!cfg) v = "pair";
+    current = v;
+    ["pair", "home", "nap", "hoi"].forEach(function (x) { $("#v-" + x).classList.toggle("on", x === v); });
+    [].forEach.call(document.querySelectorAll("nav.bottom button"), function (b) { b.classList.toggle("on", b.dataset.v === v); });
+    $("#nav").style.display = v === "pair" ? "none" : "";
+    $("#micfab").classList.toggle("on", v === "nap");
+    if (v !== "nap") stopMic();
+    if (v === "home") renderHome();
+    if (v === "hoi") { loadIndex(); setTimeout(function () { $("#q").focus(); }, 50); }
+    window.scrollTo(0, 0);
+  }
+  [].forEach.call(document.querySelectorAll("nav.bottom button"), function (b) { b.onclick = function () { go(b.dataset.v); }; });
 
   // ---------- goi Apps Script (POST text/plain: khong can CORS preflight) ----------
   function api(action, extra) {
     var body = { phone: cfg.k, action: action };
     for (var x in extra) body[x] = extra[x];
-    return fetch(cfg.u, { method: "POST", body: JSON.stringify(body), redirect: "follow" })
+    return fetch(cfg.u, { method: "POST", body: JSON.stringify(body), redirect: "follow", cache: "no-store" })
       .then(function (r) { return r.json(); })
-      .then(function (d) { if (!d.ok) throw new Error(d.error === "phone_key" ? "Khóa kết nối không còn đúng – quét lại mã QR trên máy tính." : (d.error || "lỗi")); return d; });
+      .then(function (d) {
+        if (!d.ok) throw new Error(d.error === "phone_key" ? "Khóa kết nối không còn đúng – quét lại mã QR trên máy tính."
+          : d.error === "action" ? "Script trên Google cần cập nhật (tab Điện thoại trên máy tính)." : (d.error || "lỗi"));
+        return d;
+      });
   }
-  function pending() {
-    if (!cfg) return;
-    var q = store("ebrain-queue") || [];
-    api("phone_pending", {}).then(function (d) {
-      $("#pending").className = "pending";
-      $("#pending").innerHTML = (q.length ? "Chờ gửi " + q.length + " · " : "") + (d.pending ? "Chờ máy tính nhận <b>" + d.pending + "</b>" : "Máy tính đã nhận hết ✓");
-    }).catch(function () {
-      $("#pending").className = "pending off";
-      $("#pending").innerHTML = q.length ? "Mất mạng · chờ gửi <b>" + q.length + "</b>" : "Mất mạng";
-    });
-  }
+  function setSync(ok, label) { $("#sync").className = "sync" + (ok ? "" : " off"); $("#sync span").textContent = label; }
 
   // ---------- hang cho (mat song van ghi duoc) ----------
-  var flushing = false;
+  var flushing = false, pendingN = 0;
+  function queue() { return store("ebrain-queue") || []; }
   function flush() {
     if (flushing || !cfg) return Promise.resolve();
-    var q = store("ebrain-queue") || [];
-    if (!q.length) { pending(); return Promise.resolve(); }
+    var q = queue();
+    if (!q.length) return refreshPending();
     flushing = true;
     var item = q[0];
     return api("phone_save", { item: item }).then(function () {
-      var rest = (store("ebrain-queue") || []).slice(1);
-      store("ebrain-queue", rest);
+      store("ebrain-queue", queue().slice(1));
       markSent(item.qid);
       flushing = false;
       return flush();
-    }).catch(function () { flushing = false; pending(); });
+    }).catch(function () { flushing = false; setSync(false, "Mất mạng"); renderHome(); });
   }
-  addEventListener("online", flush);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) flush(); });
+  function refreshPending() {
+    return api("phone_pending", {}).then(function (d) {
+      pendingN = d.pending; scriptVersion = d.version || 3;
+      setSync(true, "Đã kết nối"); renderHome();
+    }).catch(function () { setSync(false, "Mất mạng"); renderHome(); });
+  }
+  addEventListener("online", function () { flush(); loadIndex(); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && cfg) { flush(); loadIndex(); } });
 
-  // ---------- o nhap ----------
+  // ---------- muc luc Knowledge (tim ngay tren may, mat song van tim duoc) ----------
+  var index = store("ebrain-index") || { updated: "", items: [] };
+  function loadIndex() {
+    if (!cfg) return Promise.resolve();
+    return api("phone_index", { since: index.updated || "" }).then(function (d) {
+      if (d.same || !d.data) return;
+      var parsed = JSON.parse(d.data);
+      index = { updated: d.updated, items: parsed.items || [] };
+      store("ebrain-index", index);
+      prepIndex(); renderHome();
+    }).catch(function () {});
+  }
+  function fold(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d"); }
+  var STOP = "la va cua cac nhung trong cho voi co khong duoc nay do mot the nao gi ve tu den thi ma se da dang cung nhu de khi tai theo hay hoac neu vi bi toi ban minh".split(" ");
+  function toks(s) { return fold(s).split(/[^a-z0-9]+/).filter(function (w) { return w.length >= 2 && STOP.indexOf(w) < 0; }); }
+  function prepIndex() {
+    index.items.forEach(function (it) { it._t = toks(it.title); it._m = toks((it.topics || []).join(" ")); it._b = toks(it.statement); });
+  }
+  prepIndex();
+  function search(q) {
+    var qs = toks(q).filter(function (w, i, a) { return a.indexOf(w) === i; });
+    if (!qs.length) return [];
+    var out = [];
+    index.items.forEach(function (it) {
+      var score = 0, hit = 0;
+      qs.forEach(function (w) {
+        var s = 0;
+        if (it._t.indexOf(w) >= 0) s += 3;
+        if (it._m.indexOf(w) >= 0) s += 2;
+        if (it._b.indexOf(w) >= 0) s += 1;
+        if (s) hit++; score += s;
+      });
+      if (!hit || (qs.length >= 2 && hit / qs.length < 0.5)) return;
+      out.push({ it: it, score: score * hit / qs.length });
+    });
+    out.sort(function (a, b) { return b.score - a.score; });
+    return out.slice(0, 15).map(function (x) { return x.it; });
+  }
+  function tagFor(it) {
+    if (it.private) return '<span class="tag priv">Riêng tư</span>';
+    return it.label === "known" ? '<span class="tag known">Known</span>' : '<span class="tag">Chưa kiểm chứng</span>';
+  }
+
+  // ---------- Trang chu ----------
+  function renderHome() {
+    var d = new Date(), h = d.getHours();
+    $("#greet").textContent = h < 11 ? "Chào buổi sáng" : h < 14 ? "Chào buổi trưa" : h < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+    $("#today").textContent = d.toLocaleDateString("vi-VN", { weekday: "long", day: "numeric", month: "numeric" });
+    var q = queue();
+    $("#s-pend").textContent = q.length ? q.length : pendingN;
+    $("#s-pend-l").textContent = q.length ? "chờ gửi (chưa có mạng)" : "chờ máy tính nhận";
+    $("#s-kn").textContent = index.items.length;
+    $("#s-kn-l").textContent = index.updated ? "Knowledge · cập nhật " + hm(new Date(index.updated)) : "Knowledge trong kho";
+    var news = index.items.slice(0, 5);
+    $("#h-new").innerHTML = news.length ? news.map(function (it, i) {
+      return '<li class="tap" data-i="' + i + '"><span class="t"><b>' + esc(it.title) + '</b><small>' + esc(it.date) + (it.topics && it.topics[0] ? " · " + esc(it.topics[0]) : "") + '</small></span>' + tagFor(it) + '</li>';
+    }).join("") : '<li class="empty">' + (scriptVersion && scriptVersion < 4 ? "Cần cập nhật script trên máy tính để xem kho từ điện thoại." : "Chưa có mục lục – mở lại khi có mạng.") + '</li>';
+    [].forEach.call(document.querySelectorAll("#h-new li.tap"), function (li) { li.onclick = function () { openItem(news[+li.dataset.i]); }; });
+    var sent = (store("ebrain-sent") || []).slice(0, 5), today = d.toDateString();
+    $("#h-sent").innerHTML = sent.length ? sent.map(function (i) {
+      return '<li><time>' + esc(i.day === today ? i.at : i.day.slice(4, 10)) + '</time><span class="dot d-' + esc(i.perm) + '"></span><span class="t"><b>' + esc(i.title) + '</b></span>' + (i.sent ? "" : '<span class="q">chờ gửi</span>') + '</li>';
+    }).join("") : '<li class="empty">Chưa gửi gì từ điện thoại này.</li>';
+  }
+  $("#h-mic").onclick = function () { go("nap"); startMic(); };
+  $("#h-search").onclick = function () { go("hoi"); };
+  $("#h-more").onclick = function (e) { e.preventDefault(); go("hoi"); renderList(index.items.slice(0, 30), "Mới nhất trong kho"); };
+  $("#h-type").onclick = function () { go("nap"); setTimeout(function () { text.focus(); }, 50); };
+  $("#h-file").onclick = function () { go("nap"); $("#fileinput").click(); };
+  $("#h-paste").onclick = function () {
+    go("nap");
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      navigator.clipboard.readText().then(function (t) { if (t && t.trim()) { text.value = t.trim(); refresh(); } else text.focus(); })
+        .catch(function () { text.focus(); show("ok", "Nhấn giữ trong ô chữ → Dán."); });
+    } else { text.focus(); }
+  };
+
+  // ---------- chi tiet ----------
+  function openItem(it) {
+    $("#sheet-panel").innerHTML = '<div class="grab"></div>' + tagFor(it) + '<h3>' + esc(it.title) + '</h3><p>' + esc(it.statement) + '</p>' +
+      (it.note ? '<p class="hint">' + esc(it.note) + '</p>' : "") +
+      '<p class="hint">' + esc(it.date) + (it.topics && it.topics.length ? " · " + esc(it.topics.join(", ")) : "") + '</p>' +
+      (it.url ? '<p><a href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer" style="color:var(--navy2);font-weight:600">Mở bài gốc</a></p>' : "") +
+      '<button class="btn dark" type="button" id="sheet-close" style="width:100%;margin-top:8px">Đóng</button>';
+    $("#sheet").classList.add("on");
+    $("#sheet-close").onclick = closeSheet;
+  }
+  function closeSheet() { $("#sheet").classList.remove("on"); }
+  $("#sheet").onclick = function (e) { if (e.target.id === "sheet") closeSheet(); };
+
+  // ---------- Hoi ----------
+  var askTimer = null, lastQ = "";
+  function renderList(items, head) {
+    $("#hoi-body").innerHTML = '<p class="hint" style="margin:4px">' + esc(head) + '</p>' + items.map(function (it, i) {
+      return '<div class="card hit" data-i="' + i + '">' + tagFor(it) + '<h3>' + esc(it.title) + '</h3><p>' + esc(it.statement) + '</p></div>';
+    }).join("");
+    [].forEach.call(document.querySelectorAll("#hoi-body .hit"), function (c) { c.onclick = function () { openItem(items[+c.dataset.i]); }; });
+  }
+  $("#askform").onsubmit = function (e) {
+    e.preventDefault();
+    var q = $("#q").value.trim(); if (!q) return;
+    $("#q").blur();
+    lastQ = q;
+    if (askTimer) { clearInterval(askTimer); askTimer = null; }
+    var hits = search(q);
+    var head = hits.length ? hits.length + " kết quả trong kho (tìm ngay trên điện thoại)" : "Chưa thấy trong kho.";
+    renderList(hits, head);
+    var ai = document.createElement("div");
+    ai.innerHTML = scriptVersion && scriptVersion < 4
+      ? '<div class="aibar"><span class="hint">Muốn AI tổng hợp: cập nhật script trên máy tính (tab Điện thoại).</span></div>'
+      : '<div class="aibar"><span class="hint">Nhờ AI tổng hợp câu trả lời từ Knowledge đã duyệt. Máy tính (phải đang bật) trả lời trong khoảng 1 phút.</span><button class="btn dark" id="askai" type="button">Nhờ AI</button></div><div id="answer"></div>';
+    $("#hoi-body").insertBefore(ai, $("#hoi-body").children[1] || null);
+    var b = $("#askai"); if (b) b.onclick = function () { askAI(q, b); };
+  };
+  function askAI(q, btn) {
+    btn.disabled = true;
+    $("#answer").innerHTML = '<div class="card answer"><div class="busy">Đã gửi câu hỏi – máy tính đang trả lời…</div></div>';
+    api("phone_ask", { q: q }).then(function (d) {
+      var tries = 0;
+      askTimer = setInterval(function () {
+        if (q !== lastQ) { clearInterval(askTimer); return; }
+        tries++;
+        api("phone_answer", { id: d.id, done: false }).then(function (r) {
+          if (!r.ready) {
+            if (tries > 45) { clearInterval(askTimer); $("#answer").innerHTML = '<div class="card answer"><p class="hint">Máy tính chưa trả lời (có thể đang tắt). Câu hỏi vẫn được giữ – mở lại sau.</p></div>'; btn.disabled = false; }
+            return;
+          }
+          clearInterval(askTimer); btn.disabled = false;
+          api("phone_answer", { id: d.id, done: true }).catch(function () {});
+          showAnswer(JSON.parse(r.answer));
+        }).catch(function () {});
+      }, 4000);
+    }).catch(function (e) { btn.disabled = false; $("#answer").innerHTML = '<div class="card answer"><p style="color:var(--err)">' + esc(e.message) + '</p></div>'; });
+  }
+  function showAnswer(a) {
+    if (!a.ok) { $("#answer").innerHTML = '<div class="card answer"><p style="color:var(--err)">' + esc(a.error) + '</p></div>'; return; }
+    var LBL = { known: "Known", unverified: "Chưa kiểm chứng", inference: "Suy luận", disputed: "Mâu thuẫn", expired: "Hết hiệu lực" };
+    $("#answer").innerHTML = '<div class="card answer"><h4>AI tổng hợp · ' + esc(a.route_vi || "") + '</h4>' +
+      (a.points || []).map(function (p) {
+        return '<div class="pt"><span class="tag' + (p.label === "known" ? " known" : "") + '">' + esc(LBL[p.label] || p.label) + '</span> ' + esc(p.text) +
+          '<small>' + ((p.sources || []).map(function (s) { return "↗ " + esc(s.title); }).join(" · ") || "không có nguồn") + '</small></div>';
+      }).join("") +
+      (a.unknowns || []).map(function (u) { return '<div class="pt"><span class="tag" style="background:var(--err-t);color:var(--err)">Chưa có</span> ' + esc(u) + '</div>'; }).join("") +
+      '<p class="hint">Mỗi điểm chỉ đáng tin bằng nguồn của nó.</p></div>';
+  }
+
+  // ---------- Nap ----------
   function refresh() {
     var t = text.value.trim();
     buttons.forEach(function (b) { b.disabled = busy || (!t && !file); });
@@ -242,13 +512,12 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
   function readB64(f) {
     return new Promise(function (ok, bad) { var r = new FileReader(); r.onload = function () { ok(String(r.result).split(",")[1] || ""); }; r.onerror = bad; r.readAsDataURL(f); });
   }
-
   function save(perm) {
     stopMic();
     var t = text.value.trim();
     if (busy || (!t && !file)) return;
     if (!file && perm !== "local" && !isUrl(t) && t.replace(/\s/g, "").length < MIN) {
-      show("err", "Ghi chú hơi ngắn để AI đọc (cần ≥ " + MIN + " ký tự). Nói/viết thêm chút, hoặc chọn “Không gửi” nếu chỉ cần lưu.");
+      show("err", "Ghi chú quá ngắn (cần ít nhất " + MIN + " chữ cái/số).");
       return;
     }
     busy = true; refresh();
@@ -257,44 +526,33 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
     var label = (item.title || (file ? file.name : t.split("\n")[0])).slice(0, 80);
     var p;
     if (file) {
-      // file: gui ngay (qua lon de cat trong may khi mat song)
       show("ok", "Đang gửi file…");
       p = readB64(file).then(function (b64) {
         item.file_name = file.name; item.file_b64 = b64;
         return api("phone_save", { item: item });
-      }).then(function () { remember(item.qid, label, perm, true); clearForm(); show("ok", "<b>Đã gửi ✓</b> Máy tính sẽ nhận trong vài phút."); pending(); })
+      }).then(function () { remember(item.qid, label, perm, true); clearForm(); show("ok", "<b>Đã gửi ✓</b> Máy tính sẽ nhận trong vài phút."); refreshPending(); })
         .catch(function (e) { show("err", "Chưa gửi được file: " + esc(e.message || e) + ". Kiểm tra mạng rồi thử lại."); });
     } else {
-      var q = store("ebrain-queue") || []; q.push(item); store("ebrain-queue", q);
+      var q = queue(); q.push(item); store("ebrain-queue", q);
       remember(item.qid, label, perm, false);
       clearForm();
-      show("ok", navigator.onLine ? "Đang gửi…" : "<b>Đã lưu trong máy ✓</b> Sẽ tự gửi khi có mạng.");
       p = flush().then(function () {
-        var still = (store("ebrain-queue") || []).some(function (x) { return x.qid === item.qid; });
+        var still = queue().some(function (x) { return x.qid === item.qid; });
         show("ok", still ? "<b>Đã lưu trong máy ✓</b> Chưa có mạng – sẽ tự gửi khi có mạng." : "<b>Đã gửi ✓</b> Máy tính sẽ nhận trong vài phút.");
       });
     }
     p.then(function () { busy = false; refresh(); if (navigator.vibrate) navigator.vibrate(30); });
   }
   function clearForm() { text.value = ""; $("#title").value = ""; $("#note").value = ""; file = null; }
-
-  // ---------- danh sach da gui (chi trong may) ----------
-  var LABEL = { public: "Công khai", private: "Riêng tư", local: "Không gửi" };
   function remember(qid, title, perm, sent) {
-    var items = store("ebrain-sent") || []; var d = new Date();
-    items.unshift({ qid: qid, at: ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2), day: d.toDateString(), title: title, perm: perm, sent: sent });
-    store("ebrain-sent", items.slice(0, 40)); render();
+    var items = store("ebrain-sent") || [], d = new Date();
+    items.unshift({ qid: qid, at: hm(d), day: d.toDateString(), title: title, perm: perm, sent: sent });
+    store("ebrain-sent", items.slice(0, 40));
   }
   function markSent(qid) {
     var items = store("ebrain-sent") || [];
     items.forEach(function (i) { if (i.qid === qid) i.sent = true; });
-    store("ebrain-sent", items); render();
-  }
-  function render() {
-    var items = store("ebrain-sent") || [], today = new Date().toDateString();
-    $("#list").innerHTML = items.length ? items.map(function (i) {
-      return '<li><time>' + esc(i.day === today ? i.at : i.day.slice(4, 10)) + '</time><span class="dot d-' + esc(i.perm) + '" title="' + esc(LABEL[i.perm] || "") + '"></span><span>' + esc(i.title) + '</span>' + (i.sent ? "" : '<span class="q">chờ gửi</span>') + '</li>';
-    }).join("") : '<li class="empty">Chưa gửi gì từ điện thoại này.</li>';
+    store("ebrain-sent", items);
   }
 
   // ---------- micro: bam la noi (tieng Viet) ----------
@@ -328,7 +586,7 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
     };
     rec.onerror = function (ev) {
       if (ev.error === "no-speech" || ev.error === "aborted") return;
-      var m = { "not-allowed": "Chưa cho phép micro: vào cài đặt trình duyệt / ứng dụng → cho phép Micro.",
+      var m = { "not-allowed": "Chưa cho phép micro: vào cài đặt ứng dụng / trình duyệt → cho phép Micro.",
                 "service-not-allowed": "Điện thoại chưa bật nhận giọng nói. Dùng micro trên bàn phím.",
                 "network": "Nhận giọng nói cần mạng.", "audio-capture": "Không thấy micro." }[ev.error] || ("Lỗi micro: " + ev.error);
       show("err", m); stopMic();
@@ -336,15 +594,18 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
     rec.onend = function () { if (listening) { try { startOnce(); } catch (e) { stopMic(); } } };
     rec.start();
   }
-  $("#mic").onclick = function () {
-    if (listening) { stopMic(); return; }
+  function startMic() {
+    if (listening) return;
     if (!SR) { show("err", "Trình duyệt này chưa hỗ trợ nút nói. Bấm vào ô chữ rồi dùng micro trên bàn phím."); text.focus(); return; }
     listening = true; setMic(true); $("#interim").textContent = "Đang nghe… nói tiếng Việt";
     try { startOnce(); } catch (e) { stopMic(); }
-  };
+  }
+  $("#mic").onclick = function () { if (listening) stopMic(); else startMic(); };
 
+  // ---------- khoi dong ----------
+  function syncAll() { refreshPending(); flush(); loadIndex(); }
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
-  refresh(); render(); if (cfg) { pending(); flush(); }
+  refresh(); go(cfg ? "home" : "pair"); if (cfg) syncAll();
 })();
 </script>
 </body>

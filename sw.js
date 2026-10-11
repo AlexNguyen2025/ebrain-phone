@@ -1,9 +1,11 @@
 // OPS eBrain – service worker: mo app duoc khi mat song (giao dien luu san). Ghi chu cho gui nam trong localStorage.
-const CACHE = "ebrain-v2";
+// Co mang: LUON hoi lai GitHub (cache: "no-cache") -> ban sua moi co ngay, khong doi bo nho dem 10 phut cua Pages.
+const CACHE = "ebrain-v3";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: "reload" }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {
@@ -14,12 +16,11 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return;   // Google / phong chu: de trinh duyet tu lo
-  // giao dien: lay ban moi khi co mang, mat mang thi dung ban da luu
+  const key = e.request.mode === "navigate" ? "index.html" : e.request;
   e.respondWith(
-    fetch(e.request).then((r) => {
-      const copy = r.clone();
-      caches.open(CACHE).then((c) => c.put(e.request, copy));
+    fetch(url.href, { cache: "no-cache" }).then((r) => {
+      if (r.ok) { const copy = r.clone(); caches.open(CACHE).then((c) => c.put(key, copy)); }
       return r;
-    }).catch(() => caches.match(e.request).then((m) => m || caches.match("index.html")))
+    }).catch(() => caches.match(key).then((m) => m || caches.match("index.html")))
   );
 });
