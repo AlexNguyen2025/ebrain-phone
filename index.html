@@ -152,7 +152,7 @@ h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color:
   "use strict";
   var $ = function (s) { return document.querySelector(s); };
   var text = $("#text"), msg = $("#msg"), buttons = [].slice.call(document.querySelectorAll(".perm"));
-  var MIN = 40, MAXB = 15 * 1024 * 1024;
+  var MIN = 10, MAXB = 15 * 1024 * 1024;
   var file = null, busy = false;
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function isUrl(s) { return /^https?:\/\/\S+$/i.test(s.trim()); }

@@ -1,5 +1,5 @@
 // OPS eBrain – service worker: mo app duoc khi mat song (giao dien luu san). Ghi chu cho gui nam trong localStorage.
-const CACHE = "ebrain-v1";
+const CACHE = "ebrain-v2";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
