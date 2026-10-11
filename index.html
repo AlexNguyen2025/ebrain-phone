@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1A3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="eBrain">
+<title>OPS eBrain</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* OPS Brand v8 */
+:root {
+  --navy: #0F1A3A; --navy2: #192852; --gold: #FACC15; --amber: #F59E0B; --cyan: #7DD3D7;
+  --bg: #F8F6F0; --card: #FFFFFF; --ink: #0F1A3A; --body: #41496A; --grey: #78809A; --line: #E4E6F0;
+  --gold-t: #FBF3D3; --amber-t: #FCEBCB; --cyan-t: #E4F4F5; --err: #B42318; --err-t: #FDECEA;
+  --shadow: 0 8px 24px rgba(15, 26, 58, .10);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--body); }
+body { font: 16px/1.5 Inter, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif; padding-bottom: calc(132px + env(safe-area-inset-bottom)); -webkit-font-smoothing: antialiased; }
+header { background: var(--navy); color: #fff; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 5; }
+header svg { width: 32px; height: 32px; flex: none; }
+header b { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+header b span { color: var(--gold); }
+.pending { margin-left: auto; font-size: 12.5px; color: var(--cyan); text-align: right; line-height: 1.3; }
+.pending.off { color: #FFB4A8; }
+main { padding: 16px; max-width: 560px; margin: 0 auto; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+textarea, input { width: 100%; font: inherit; color: var(--ink); background: transparent; border: 0; outline: 0; resize: none; }
+#text { min-height: 28vh; padding: 16px; font-size: 17px; line-height: 1.55; display: block; }
+textarea::placeholder, input::placeholder { color: var(--grey); }
+#interim { display: none; padding: 0 16px 12px; color: var(--grey); font-style: italic; font-size: 15px; }
+#interim.on { display: block; }
+.row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--cyan-t); color: var(--navy); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 500; max-width: 100%; }
+.chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip button { border: 0; background: none; font-size: 20px; line-height: 1; color: var(--grey); min-width: 28px; min-height: 28px; }
+.tool { border: 1px solid var(--line); background: var(--card); color: var(--navy); border-radius: 999px; min-height: 44px; padding: 0 16px; font: 600 15px Inter, sans-serif; }
+.extra { display: none; padding: 0 12px 12px; gap: 8px; flex-direction: column; }
+.extra.open { display: flex; }
+.extra input, .extra textarea { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); min-height: 48px; }
+.extra textarea { min-height: 72px; }
+.perms { display: grid; gap: 10px; margin-top: 16px; }
+.perm { min-height: 64px; border-radius: 999px; border: 1.5px solid transparent; font: 600 17px Inter, sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 22px; text-align: left; }
+.perm small { display: block; font: 400 12.5px Inter, sans-serif; opacity: .85; margin-top: 1px; }
+.perm svg { width: 22px; height: 22px; flex: none; }
+.p-public { background: var(--gold); color: var(--navy); }
+.p-private { background: var(--navy); color: var(--gold); }
+.p-private small { color: #E6E9F2; }
+.p-local { background: var(--card); color: var(--navy); border-color: var(--line); }
+.perm:active { transform: scale(.98); }
+.perm:disabled { opacity: .4; }
+#msg { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 16px; font-size: 15px; }
+#msg.ok { display: block; background: var(--gold-t); color: var(--navy); }
+#msg.err { display: block; background: var(--err-t); color: var(--err); }
+.warn { margin-top: 10px; background: var(--amber-t); color: var(--navy); border-radius: 16px; padding: 12px 14px; font-size: 13.5px; display: none; }
+h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--amber); margin: 28px 4px 8px; font-weight: 700; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { display: flex; gap: 12px; align-items: baseline; padding: 14px 16px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink); }
+.list li:first-child { border-top: 0; }
+.list time { color: var(--grey); font-size: 13px; min-width: 42px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; align-self: center; }
+.d-public { background: var(--gold); } .d-private { background: var(--navy); } .d-local { background: var(--grey); }
+.q { font-size: 12px; color: var(--amber); font-weight: 600; margin-left: auto; white-space: nowrap; }
+.empty { color: var(--grey); }
+.hint { font-size: 13px; color: var(--grey); }
+/* ---- nut micro to (bam la noi) ---- */
+.micbar { position: fixed; left: 0; right: 0; bottom: 0; padding: 14px 16px calc(16px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--bg) 70%, rgba(248, 246, 240, 0)); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 6; pointer-events: none; }
+#mic { pointer-events: auto; width: 84px; height: 84px; border-radius: 50%; border: 0; background: var(--navy); color: var(--gold); display: grid; place-items: center; box-shadow: 0 10px 28px rgba(15, 26, 58, .28), inset 0 0 0 4px var(--gold); }
+#mic svg { width: 36px; height: 36px; }
+#mic.on { background: var(--err); color: #fff; box-shadow: 0 0 0 0 rgba(180, 35, 24, .5), inset 0 0 0 4px #fff; animation: ring 1.4s ease-out infinite; }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(180, 35, 24, .45), inset 0 0 0 4px #fff; } 100% { box-shadow: 0 0 0 22px rgba(180, 35, 24, 0), inset 0 0 0 4px #fff; } }
+.miclabel { font-size: 13px; font-weight: 600; color: var(--navy); background: rgba(255, 255, 255, .9); padding: 2px 12px; border-radius: 999px; }
+/* ---- ket noi lan dau ---- */
+#pair { display: none; }
+#pair.on { display: block; }
+#app.off { display: none; }
+.pair { padding: 20px; }
+.pair h3 { margin: 0 0 6px; color: var(--ink); font-size: 20px; }
+.pair input { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); min-height: 48px; margin: 12px 0; }
+.btn { border: 0; border-radius: 999px; min-height: 48px; padding: 0 24px; font: 600 16px Inter, sans-serif; background: var(--gold); color: var(--navy); }
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59E0B"/><stop offset="1" stop-color="#FACC15"/></linearGradient></defs>
+    <rect width="64" height="64" rx="15" fill="#192852"/>
+    <path d="M24 17.5A17 17 0 1 0 40 17.5" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M23 33l6.5 6.5L42 27" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <b>OPS <span>eBrain</span></b>
+  <div class="pending" id="pending"></div>
+</header>
+
+<main>
+  <div class="card pair" id="pair">
+    <h3>Kết nối với máy tính</h3>
+    <p class="hint">Trên máy tính: trang nạp → tab <b>Điện thoại</b> → quét mã QR bằng camera, hoặc bấm <b>Sao chép link</b> rồi dán vào đây.</p>
+    <input id="pairlink" placeholder="Dán link kết nối…" autocomplete="off">
+    <button class="btn" id="pairbtn" type="button">Kết nối</button>
+  </div>
+
+  <div id="app">
+    <div class="card">
+      <textarea id="text" placeholder="Bấm micro bên dưới để nói, hoặc dán link / gõ ghi chú…"></textarea>
+      <div id="interim"></div>
+      <div class="row">
+        <span id="files"></span>
+        <button class="tool" id="attach" type="button">＋ File</button>
+        <button class="tool" id="more" type="button">Tiêu đề / ghi chú</button>
+        <input id="fileinput" type="file" accept=".docx,.pdf,.txt,.md" hidden>
+      </div>
+      <div class="extra" id="extra">
+        <input id="title" placeholder="Tiêu đề (bỏ trống: tự đặt)">
+        <textarea id="note" placeholder="Vì sao muốn giữ (không bắt buộc)"></textarea>
+      </div>
+    </div>
+
+    <div class="perms">
+      <button class="perm p-public" data-perm="public" disabled><span>Công khai<small>Bài báo, kiến thức phổ biến · AI miễn phí</small></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg></button>
+      <button class="perm p-private" data-perm="private" disabled><span>Riêng tư<small>Việc công ty, cá nhân · AI trả phí, không lưu</small></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+      <button class="perm p-local" data-perm="local" disabled><span>Không gửi<small>Chỉ lưu, AI không bao giờ đọc</small></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg></button>
+    </div>
+    <div class="warn" id="warn">Ghi chú đi qua <b>Google Drive của bạn</b> vài phút rồi về máy tính và bị xóa khỏi Drive. Số CCCD, giấy tờ quan trọng nên nhập trên máy tính; đừng đọc chúng bằng micro.</div>
+    <div id="msg" role="status"></div>
+
+    <h2>Đã gửi từ điện thoại</h2>
+    <div class="card"><ul class="list" id="list"></ul></div>
+    <p class="hint" style="margin:12px 4px">Mất sóng vẫn ghi được: ghi chú chờ trong máy và tự gửi khi có mạng. Máy tính lấy về khoảng 2 phút một lần (máy phải đang bật).</p>
+  </div>
+</main>
+
+<div class="micbar" id="micbar">
+  <button id="mic" type="button" aria-label="Bấm để nói">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+  </button>
+  <span class="miclabel" id="miclabel">Bấm để nói</span>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+  var text = $("#text"), msg = $("#msg"), buttons = [].slice.call(document.querySelectorAll(".perm"));
+  var MIN = 40, MAXB = 15 * 1024 * 1024;
+  var file = null, busy = false;
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function isUrl(s) { return /^https?:\/\/\S+$/i.test(s.trim()); }
+  function show(kind, html) { msg.className = kind; msg.innerHTML = html; }
+  function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+
+  // ---------- ket noi: link tu QR co dang ...#u=<web app>&k=<khoa dien thoai> ----------
+  function parsePair(s) {
+    var h = String(s || "");
+    var i = h.indexOf("#"); if (i >= 0) h = h.slice(i + 1);
+    var p = {};
+    h.split("&").forEach(function (kv) { var j = kv.indexOf("="); if (j > 0) p[kv.slice(0, j)] = decodeURIComponent(kv.slice(j + 1)); });
+    if (/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(p.u || "") && (p.k || "").length > 20) return { u: p.u, k: p.k };
+    return null;
+  }
+  var cfg = store("ebrain-cfg");
+  var fromHash = parsePair(location.hash);
+  if (fromHash) { cfg = fromHash; store("ebrain-cfg", cfg); history.replaceState(null, "", location.pathname); }
+  function showPair(on) { $("#pair").classList.toggle("on", on); $("#app").classList.toggle("off", on); $("#micbar").style.display = on ? "none" : ""; }
+  showPair(!cfg);
+  $("#pairbtn").onclick = function () {
+    var c = parsePair($("#pairlink").value);
+    if (!c) { alert("Link không đúng. Sao chép lại link trong tab Điện thoại trên máy tính."); return; }
+    cfg = c; store("ebrain-cfg", cfg); showPair(false); pending(); flush();
+  };
+
+  // ---------- goi Apps Script (POST text/plain: khong can CORS preflight) ----------
+  function api(action, extra) {
+    var body = { phone: cfg.k, action: action };
+    for (var x in extra) body[x] = extra[x];
+    return fetch(cfg.u, { method: "POST", body: JSON.stringify(body), redirect: "follow" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (!d.ok) throw new Error(d.error === "phone_key" ? "Khóa kết nối không còn đúng – quét lại mã QR trên máy tính." : (d.error || "lỗi")); return d; });
+  }
+  function pending() {
+    if (!cfg) return;
+    var q = store("ebrain-queue") || [];
+    api("phone_pending", {}).then(function (d) {
+      $("#pending").className = "pending";
+      $("#pending").innerHTML = (q.length ? "Chờ gửi " + q.length + " · " : "") + (d.pending ? "Chờ máy tính nhận <b>" + d.pending + "</b>" : "Máy tính đã nhận hết ✓");
+    }).catch(function () {
+      $("#pending").className = "pending off";
+      $("#pending").innerHTML = q.length ? "Mất mạng · chờ gửi <b>" + q.length + "</b>" : "Mất mạng";
+    });
+  }
+
+  // ---------- hang cho (mat song van ghi duoc) ----------
+  var flushing = false;
+  function flush() {
+    if (flushing || !cfg) return Promise.resolve();
+    var q = store("ebrain-queue") || [];
+    if (!q.length) { pending(); return Promise.resolve(); }
+    flushing = true;
+    var item = q[0];
+    return api("phone_save", { item: item }).then(function () {
+      var rest = (store("ebrain-queue") || []).slice(1);
+      store("ebrain-queue", rest);
+      markSent(item.qid);
+      flushing = false;
+      return flush();
+    }).catch(function () { flushing = false; pending(); });
+  }
+  addEventListener("online", flush);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) flush(); });
+
+  // ---------- o nhap ----------
+  function refresh() {
+    var t = text.value.trim();
+    buttons.forEach(function (b) { b.disabled = busy || (!t && !file); });
+    $("#files").innerHTML = file ? '<span class="chip"><span>' + esc(file.name) + '</span><button type="button" id="rmfile" aria-label="Bỏ file">×</button></span>' : "";
+    var rm = $("#rmfile"); if (rm) rm.onclick = function () { file = null; refresh(); };
+  }
+  text.addEventListener("input", refresh);
+  $("#more").onclick = function () { $("#extra").classList.toggle("open"); };
+  $("#attach").onclick = function () { $("#fileinput").click(); };
+  $("#fileinput").onchange = function (e) {
+    var f = e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    if (!/\.(docx|pdf|txt|md)$/i.test(f.name)) { show("err", "Chỉ nhận Word (.docx), PDF, .txt, .md. Ảnh chưa nhận được."); return; }
+    if (f.size > MAXB) { show("err", "File quá lớn (tối đa 15 MB)."); return; }
+    file = f; refresh();
+  };
+  buttons.forEach(function (b) {
+    b.addEventListener("touchstart", function () { $("#warn").style.display = b.dataset.perm === "local" ? "block" : "none"; }, { passive: true });
+    b.onclick = function () { save(b.dataset.perm); };
+  });
+  function readB64(f) {
+    return new Promise(function (ok, bad) { var r = new FileReader(); r.onload = function () { ok(String(r.result).split(",")[1] || ""); }; r.onerror = bad; r.readAsDataURL(f); });
+  }
+
+  function save(perm) {
+    stopMic();
+    var t = text.value.trim();
+    if (busy || (!t && !file)) return;
+    if (!file && perm !== "local" && !isUrl(t) && t.replace(/\s/g, "").length < MIN) {
+      show("err", "Ghi chú hơi ngắn để AI đọc (cần ≥ " + MIN + " ký tự). Nói/viết thêm chút, hoặc chọn “Không gửi” nếu chỉ cần lưu.");
+      return;
+    }
+    busy = true; refresh();
+    var item = { qid: Date.now() + "-" + Math.random().toString(36).slice(2, 8), perm: perm, text: t,
+                 title: $("#title").value.trim(), note: $("#note").value.trim() };
+    var label = (item.title || (file ? file.name : t.split("\n")[0])).slice(0, 80);
+    var p;
+    if (file) {
+      // file: gui ngay (qua lon de cat trong may khi mat song)
+      show("ok", "Đang gửi file…");
+      p = readB64(file).then(function (b64) {
+        item.file_name = file.name; item.file_b64 = b64;
+        return api("phone_save", { item: item });
+      }).then(function () { remember(item.qid, label, perm, true); clearForm(); show("ok", "<b>Đã gửi ✓</b> Máy tính sẽ nhận trong vài phút."); pending(); })
+        .catch(function (e) { show("err", "Chưa gửi được file: " + esc(e.message || e) + ". Kiểm tra mạng rồi thử lại."); });
+    } else {
+      var q = store("ebrain-queue") || []; q.push(item); store("ebrain-queue", q);
+      remember(item.qid, label, perm, false);
+      clearForm();
+      show("ok", navigator.onLine ? "Đang gửi…" : "<b>Đã lưu trong máy ✓</b> Sẽ tự gửi khi có mạng.");
+      p = flush().then(function () {
+        var still = (store("ebrain-queue") || []).some(function (x) { return x.qid === item.qid; });
+        show("ok", still ? "<b>Đã lưu trong máy ✓</b> Chưa có mạng – sẽ tự gửi khi có mạng." : "<b>Đã gửi ✓</b> Máy tính sẽ nhận trong vài phút.");
+      });
+    }
+    p.then(function () { busy = false; refresh(); if (navigator.vibrate) navigator.vibrate(30); });
+  }
+  function clearForm() { text.value = ""; $("#title").value = ""; $("#note").value = ""; file = null; }
+
+  // ---------- danh sach da gui (chi trong may) ----------
+  var LABEL = { public: "Công khai", private: "Riêng tư", local: "Không gửi" };
+  function remember(qid, title, perm, sent) {
+    var items = store("ebrain-sent") || []; var d = new Date();
+    items.unshift({ qid: qid, at: ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2), day: d.toDateString(), title: title, perm: perm, sent: sent });
+    store("ebrain-sent", items.slice(0, 40)); render();
+  }
+  function markSent(qid) {
+    var items = store("ebrain-sent") || [];
+    items.forEach(function (i) { if (i.qid === qid) i.sent = true; });
+    store("ebrain-sent", items); render();
+  }
+  function render() {
+    var items = store("ebrain-sent") || [], today = new Date().toDateString();
+    $("#list").innerHTML = items.length ? items.map(function (i) {
+      return '<li><time>' + esc(i.day === today ? i.at : i.day.slice(4, 10)) + '</time><span class="dot d-' + esc(i.perm) + '" title="' + esc(LABEL[i.perm] || "") + '"></span><span>' + esc(i.title) + '</span>' + (i.sent ? "" : '<span class="q">chờ gửi</span>') + '</li>';
+    }).join("") : '<li class="empty">Chưa gửi gì từ điện thoại này.</li>';
+  }
+
+  // ---------- micro: bam la noi (tieng Viet) ----------
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = null, listening = false;
+  function insert(t) {
+    t = t.trim(); if (!t) return;
+    var v = text.value, sep = v && !/\s$/.test(v) ? " " : "";
+    text.value = v + sep + t.charAt(0).toUpperCase() + t.slice(1) + (/[.?!,]$/.test(t) ? "" : ".");
+    refresh();
+  }
+  function setMic(on) {
+    $("#mic").classList.toggle("on", on);
+    $("#miclabel").textContent = on ? "Đang nghe… bấm để dừng" : "Bấm để nói";
+    $("#interim").classList.toggle("on", on);
+    if (!on) $("#interim").textContent = "";
+  }
+  function stopMic() { listening = false; setMic(false); if (rec) { try { rec.stop(); } catch (e) {} } }
+  function startOnce() {
+    rec = new SR();
+    rec.lang = "vi-VN";
+    rec.continuous = false;          // Android lap chu khi de continuous -> nghe tung cau, tu bat lai
+    rec.interimResults = true;
+    rec.onresult = function (ev) {
+      var interim = "";
+      for (var i = ev.resultIndex; i < ev.results.length; i++) {
+        if (ev.results[i].isFinal) insert(ev.results[i][0].transcript);
+        else interim += ev.results[i][0].transcript;
+      }
+      $("#interim").textContent = interim || "Đang nghe…";
+    };
+    rec.onerror = function (ev) {
+      if (ev.error === "no-speech" || ev.error === "aborted") return;
+      var m = { "not-allowed": "Chưa cho phép micro: vào cài đặt trình duyệt / ứng dụng → cho phép Micro.",
+                "service-not-allowed": "Điện thoại chưa bật nhận giọng nói. Dùng micro trên bàn phím.",
+                "network": "Nhận giọng nói cần mạng.", "audio-capture": "Không thấy micro." }[ev.error] || ("Lỗi micro: " + ev.error);
+      show("err", m); stopMic();
+    };
+    rec.onend = function () { if (listening) { try { startOnce(); } catch (e) { stopMic(); } } };
+    rec.start();
+  }
+  $("#mic").onclick = function () {
+    if (listening) { stopMic(); return; }
+    if (!SR) { show("err", "Trình duyệt này chưa hỗ trợ nút nói. Bấm vào ô chữ rồi dùng micro trên bàn phím."); text.focus(); return; }
+    listening = true; setMic(true); $("#interim").textContent = "Đang nghe… nói tiếng Việt";
+    try { startOnce(); } catch (e) { stopMic(); }
+  };
+
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+  refresh(); render(); if (cfg) { pending(); flush(); }
+})();
+</script>
+</body>
+</html>
