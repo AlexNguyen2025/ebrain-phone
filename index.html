@@ -483,15 +483,19 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     var ai = document.createElement("div");
     ai.innerHTML = scriptVersion && scriptVersion < 4
       ? '<div class="aibar"><span class="hint">Muốn AI tổng hợp: cập nhật script trên máy tính (tab Điện thoại).</span></div>'
-      : '<div class="aibar"><span class="hint">Nhờ AI tổng hợp câu trả lời từ Knowledge đã duyệt. Máy tính (phải đang bật) trả lời trong khoảng 10–20 giây.</span><button class="btn dark" id="askai" type="button">Nhờ AI</button></div><div id="answer"></div>';
+      : '<div class="aibar"><span class="hint">Nhờ AI tổng hợp câu trả lời từ Knowledge đã duyệt. Thường trả lời trong vài giây.</span><button class="btn dark" id="askai" type="button">Nhờ AI</button></div><div id="answer"></div>';
     $("#hoi-body").insertBefore(ai, $("#hoi-body").children[1] || null);
     var b = $("#askai"); if (b) b.onclick = function () { askAI(q, b); };
     if (b && hits.length && isQuestion(q)) askAI(q, b);
   };
   function askAI(q, btn) {
     btn.disabled = true;
-    $("#answer").innerHTML = '<div class="card answer"><div class="busy">Đã gửi câu hỏi – máy tính đang trả lời…</div></div>';
+    $("#answer").innerHTML = '<div class="card answer"><div class="busy">AI đang trả lời…</div></div>';
     api("phone_ask", { q: q }).then(function (d) {
+      if (d.answer) {   // script ban 5 (J63): Google tra loi ngay, khong can may tinh
+        if (q === lastQ) { btn.disabled = false; showAnswer(JSON.parse(d.answer)); }
+        return;
+      }
       var tries = 0;
       askTimer = setInterval(function () {
         if (q !== lastQ) { clearInterval(askTimer); return; }
@@ -608,9 +612,10 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
       p = readB64(file).then(function (b64) {
         item.file_name = file.name; item.file_b64 = b64;
         return api("phone_save", { item: item });
-      }).then(function () {
+      }).then(function (res) {
         remember(item.qid, label, perm, true); clearForm();
-        show("ok", "<b>Đã gửi ✓</b> " + (isImg && perm !== "local" ? "Máy tính sẽ cho AI chép chữ trong ảnh rồi đưa vào kho." : "Máy tính sẽ nhận trong vài phút."));
+        show("ok", "<b>Đã gửi ✓</b> " + (res && res.ocr_title ? "AI đã đọc ảnh: <b>" + esc(res.ocr_title) + "</b> – hỏi lại được ngay." :
+          isImg && perm !== "local" ? "Máy tính sẽ cho AI chép chữ trong ảnh rồi đưa vào kho." : "Máy tính sẽ nhận trong vài phút."));
         refreshPending();
       })
         .catch(function (e) {
