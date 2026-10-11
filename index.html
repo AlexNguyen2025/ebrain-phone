@@ -604,6 +604,28 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
 
   // ---------- khoi dong ----------
   function syncAll() { refreshPending(); flush(); loadIndex(); }
+
+  // ---------- tu lam moi: khong phai tai lai trang ----------
+  // Dang mo app: 30 giay/lan lay so cho nhan + muc luc moi (muc luc chi tai khi co thay doi).
+  // Ban app moi tren GitHub: tu tai lai khi ban dang o Trang chu va khong go/noi/cho AI.
+  function quiet() {
+    return current === "home" && !busy && !file && !text.value.trim() && !listening && !askTimer;
+  }
+  var shellSig = "";
+  function checkUpdate() {
+    if (!navigator.onLine) return;
+    fetch("index.html", { cache: "no-cache" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) {
+      if (!t) return;
+      var h = 0; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0;
+      var sig = t.length + ":" + h;
+      if (!shellSig) { shellSig = sig; return; }
+      if (sig !== shellSig && quiet()) location.reload();
+    }).catch(function () {});
+  }
+  setInterval(function () { if (!document.hidden && cfg) { refreshPending(); loadIndex(); } }, 30000);
+  setInterval(function () { if (!document.hidden) checkUpdate(); }, 5 * 60000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkUpdate(); });
+  checkUpdate();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
   refresh(); go(cfg ? "home" : "pair"); if (cfg) syncAll();
 })();
