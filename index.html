@@ -535,7 +535,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     return new Promise(function (ok, bad) {
       var url = URL.createObjectURL(f), img = new Image();
       img.onload = function () {
-        var k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+        var k = Math.min(1, 2048 / Math.max(img.naturalWidth, img.naturalHeight));   // du net cho chu nho (thanh phan, so lo)
         var c = document.createElement("canvas");
         c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
         c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
@@ -544,9 +544,13 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
           if (!b) return bad(new Error("Không xử lý được ảnh"));
           var d = new Date(), name = "Anh " + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + "-" + pad(d.getMinutes()) + ".jpg";
           var out = new File([b], name, { type: "image/jpeg" });
-          out.isImage = true; out.preview = c.toDataURL("image/jpeg", 0.4);
-          ok(out);
-        }, "image/jpeg", 0.82);
+          out.isImage = true; out.preview = c.toDataURL("image/jpeg", 0.4); out.codes = [];
+          // Android Chrome: doc ma vach / QR ngay tren dien thoai (AI khong giai ma duoc cac vach)
+          if (!("BarcodeDetector" in window)) return ok(out);
+          new BarcodeDetector().detect(c).then(function (found) {
+            found.forEach(function (x) { if (x.rawValue && out.codes.indexOf(x.rawValue) < 0) out.codes.push(x.rawValue); });
+          }).catch(function () {}).then(function () { ok(out); });
+        }, "image/jpeg", 0.85);
       };
       img.onerror = function () { URL.revokeObjectURL(url); bad(new Error("Không mở được ảnh")); };
       img.src = url;
@@ -557,7 +561,9 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     show("ok", "Đang chuẩn bị ảnh…");
     shrink(f).then(function (out) {
       file = out; refresh();
-      show("ok", "Ảnh đã sẵn sàng. Chọn <b>Công khai / Riêng tư / Không gửi</b> để gửi.");
+      show("ok", (out.codes.length ? "Đã đọc mã: <b>" + esc(out.codes.join(", ")) + "</b>. " : "") +
+        "Gõ/nói vài chữ chú thích nếu muốn (vd. “chỗ đậu xe”), rồi chọn <b>Công khai / Riêng tư / Không gửi</b>. " +
+        "Không gửi = AI không đọc ảnh, chỉ tìm lại được theo chú thích.");
     }).catch(function (e) { show("err", esc(e.message)); });
   }
   $("#cam").onclick = function () { $("#caminput").click(); };
@@ -597,6 +603,8 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     if (file) {
       show("ok", file.isImage ? "Đang gửi ảnh…" : "Đang gửi file…");
       var isImg = file.isImage;
+      if (file.codes && file.codes.length)
+        item.note = (item.note ? item.note + "\n" : "") + "Mã vạch/QR (điện thoại đọc): " + file.codes.join(", ");
       p = readB64(file).then(function (b64) {
         item.file_name = file.name; item.file_b64 = b64;
         return api("phone_save", { item: item });
@@ -605,7 +613,18 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
         show("ok", "<b>Đã gửi ✓</b> " + (isImg && perm !== "local" ? "Máy tính sẽ cho AI chép chữ trong ảnh rồi đưa vào kho." : "Máy tính sẽ nhận trong vài phút."));
         refreshPending();
       })
-        .catch(function (e) { show("err", "Chưa gửi được file: " + esc(e.message || e) + ". Kiểm tra mạng rồi thử lại."); });
+        .catch(function (e) {
+          // mat song: giu anh/file nho trong may, tu gui khi co mang (khong mat anh vua chup)
+          if (item.file_b64 && item.file_b64.length < 3000000) {
+            try {
+              var q = queue(); q.push(item); localStorage.setItem("ebrain-queue", JSON.stringify(q));
+              remember(item.qid, label, perm, false); clearForm();
+              show("ok", "<b>Đã lưu trong máy ✓</b> Chưa có mạng – sẽ tự gửi khi có mạng.");
+              return;
+            } catch (x) {}
+          }
+          show("err", "Chưa gửi được file: " + esc(e.message || e) + ". Kiểm tra mạng rồi thử lại.");
+        });
     } else {
       var q = queue(); q.push(item); store("ebrain-queue", q);
       remember(item.qid, label, perm, false);

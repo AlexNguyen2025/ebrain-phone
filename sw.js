@@ -1,6 +1,6 @@
 // OPS eBrain – service worker: mo app duoc khi mat song (giao dien luu san). Ghi chu cho gui nam trong localStorage.
 // Co mang: LUON hoi lai GitHub (cache: "no-cache") -> ban sua moi co ngay, khong doi bo nho dem 10 phut cua Pages.
-const CACHE = "ebrain-v7";
+const CACHE = "ebrain-v8";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
