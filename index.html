@@ -87,6 +87,9 @@ textarea::placeholder, input::placeholder { color: var(--grey); }
 #interim.on { display: block; }
 .row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); flex-wrap: wrap; }
 .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--cyan-t); color: var(--navy); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 500; max-width: 100%; }
+.qmic { background: var(--cyan-t, #E0F2FE) !important; color: var(--navy) !important; min-width: 48px; display: inline-flex; align-items: center; justify-content: center; }
+.qmic.on { background: #B42318 !important; color: #fff !important; animation: qpulse 1.2s infinite; }
+@keyframes qpulse { 0% { box-shadow: 0 0 0 0 rgba(180,35,24,.45); } 100% { box-shadow: 0 0 0 14px rgba(180,35,24,0); } }
 .cats { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
 .cats button { border: 0; background: var(--cyan-t); color: var(--navy); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 14px; font-weight: 500; min-height: 40px; }
 .cats button b { color: var(--navy2); margin-left: 4px; }
@@ -243,6 +246,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   <div class="view" id="v-hoi">
     <div class="askbox"><form id="askform">
       <input id="q" type="search" autocomplete="off" placeholder="Hỏi hoặc tìm… (không dấu cũng được)">
+      <button type="button" id="qmic" class="qmic" hidden aria-label="Hỏi bằng giọng nói"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="submit">Tìm</button>
     </form></div>
     <div id="hoi-body"></div>
@@ -390,6 +394,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     return out.slice(0, 15).map(function (x) { return x.it; });
   }
   function tagFor(it) {
+    if (it.own && it.label === "known") return '<span class="tag known">Bạn ghi</span>';
     if (it.private) return '<span class="tag priv">Riêng tư</span>';
     return it.label === "known" ? '<span class="tag known">Known</span>' : '<span class="tag">Chưa kiểm chứng</span>';
   }
@@ -466,6 +471,33 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     [].forEach.call(document.querySelectorAll("#hoi-body .hit"), function (c) { c.onclick = function () { openItem(items[+c.dataset.i]); }; });
   }
   $("#q").addEventListener("input", function () { if (!$("#q").value.trim()) { lastQ = ""; renderCats(); } });
+  // hoi bang giong noi (J64): bam micro, noi cau hoi, ngung noi -> tu tim + hoi AI
+  (function () {
+    var SRq = window.SpeechRecognition || window.webkitSpeechRecognition, b = $("#qmic"), r = null;
+    if (!SRq) return;
+    b.hidden = false;
+    function stop() { b.classList.remove("on"); if (r) { try { r.stop(); } catch (e) {} } r = null; }
+    b.onclick = function () {
+      if (r) return stop();
+      stopMic();
+      r = new SRq(); r.lang = "vi-VN"; r.interimResults = true; r.continuous = false;
+      var fin = "", ph = $("#q").placeholder;
+      $("#q").value = ""; $("#q").placeholder = "Đang nghe… nói câu hỏi";
+      b.classList.add("on");
+      r.onresult = function (ev) {
+        var t = "";
+        for (var i = 0; i < ev.results.length; i++) { t += ev.results[i][0].transcript; if (ev.results[i].isFinal) fin = t; }
+        $("#q").value = t;
+      };
+      r.onerror = function (ev) { if (ev.error === "not-allowed") show("err", "Chưa cho dùng micro – vào cài đặt trình duyệt cho phép Micro."); };
+      r.onend = function () {
+        $("#q").placeholder = ph; b.classList.remove("on"); r = null;
+        var q = (fin || $("#q").value).trim();
+        if (q) { $("#q").value = q; $("#askform").requestSubmit(); }
+      };
+      try { r.start(); } catch (e) { stop(); }
+    };
+  })();
   // J62: go cau hoi (co dau ? hoac tu de hoi) -> hoi AI luon, khong can bam them "Nho AI"
   function isQuestion(q) {
     var f = " " + fold(q).replace(/[^a-z0-9?]+/g, " ") + " ";
