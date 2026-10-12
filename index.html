@@ -643,7 +643,63 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
   function readB64(f) {
     return new Promise(function (ok, bad) { var r = new FileReader(); r.onload = function () { ok(String(r.result).split(",")[1] || ""); }; r.onerror = bad; r.readAsDataURL(f); });
   }
+  // J66+: ghi chu moi co the THAY THE Knowledge cu rat giong -> do ngay tren may, hoi truoc khi gui
+  function jac(a, b) {
+    var A = {}, B = {}, uni = {}, inter = 0;
+    toks(a).forEach(function (w) { A[w] = 1; });
+    toks(b).forEach(function (w) { B[w] = 1; });
+    Object.keys(A).forEach(function (w) { uni[w] = 1; if (B[w]) inter++; });
+    Object.keys(B).forEach(function (w) { uni[w] = 1; });
+    var u = Object.keys(uni).length;
+    return u ? inter / u : 0;
+  }
+  function findSimilarLocal(t, title) {
+    var best = null;
+    index.items.forEach(function (it) {
+      var s = Math.max(title ? jac(title, it.title) : 0, jac(title + " " + t, it.title + " " + (it.statement || "")));
+      if (s >= 0.55 && (!best || s > best.s)) best = { id: it.id || it.title, title: it.title, s: s };
+    });
+    return best;
+  }
+  function askReplace(oldTitle) {
+    return new Promise(function (resolve) {
+      var ov = document.createElement("div");
+      ov.style.cssText = "position:fixed;inset:0;background:rgba(15,26,58,.5);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px";
+      ov.innerHTML = '<div style="background:#fff;border-radius:20px;max-width:440px;width:100%;padding:22px;box-shadow:0 14px 40px rgba(15,26,58,.3)">' +
+        '<h3 style="margin:0 0 10px;color:#0F1A3A;font-size:19px">Thay thế thông tin cũ?</h3>' +
+        '<p style="margin:0 0 4px;color:#41496A;font-size:15px">Trong kho đã có mục rất giống:</p>' +
+        '<p style="margin:0 0 14px;color:#0F1A3A;font-weight:600;font-size:15px">“' + esc(oldTitle) + '”</p>' +
+        '<p style="margin:0 0 18px;color:#78809A;font-size:13px;line-height:1.5">“Thay thế” = cho mục cũ nghỉ (ẩn khỏi hỏi/tìm, vẫn giữ làm lịch sử). “Giữ cả hai” nếu đây là thông tin khác.</p>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button data-r="yes" style="flex:1;min-width:150px;min-height:50px;border:0;border-radius:999px;background:#FACC15;color:#0F1A3A;font-weight:700;font-size:15px">Thay thế mục cũ</button>' +
+        '<button data-r="no" style="flex:1;min-width:120px;min-height:50px;border:1px solid #E4E6F0;border-radius:999px;background:#fff;color:#0F1A3A;font-weight:600;font-size:15px">Giữ cả hai</button>' +
+        '</div></div>';
+      document.body.appendChild(ov);
+      ov.addEventListener("click", function (e) {
+        var r = e.target && e.target.dataset ? e.target.dataset.r : null;
+        if (r) { ov.remove(); resolve(r); }
+        else if (e.target === ov) { ov.remove(); resolve("cancel"); }
+      });
+    });
+  }
   function save(perm) {
+    if (busy) return;
+    var t = text.value.trim();
+    if (!t && !files.length) return;
+    // chi hoi thay the voi ghi chu chu (khong file, khong link)
+    if (t && !files.length && !isUrl(t)) {
+      var m = findSimilarLocal(t, $("#title").value.trim());
+      if (m) {
+        askReplace(m.title).then(function (choice) {
+          if (choice === "cancel") return;
+          doSave(perm, choice === "yes" ? m.id : "");
+        });
+        return;
+      }
+    }
+    doSave(perm, "");
+  }
+  function doSave(perm, supersedes) {
     stopMic();
     var t = text.value.trim();
     if (busy || (!t && !files.length)) return;
@@ -672,6 +728,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     // chi gui chu thanh muc rieng khi khong co anh di kem (voi anh, chu la chu thich)
     var textItem = (t && !hasImg) ? { qid: Date.now() + "-t-" + Math.random().toString(36).slice(2, 8),
       perm: perm, text: t, title: baseTitle, note: baseNote,
+      supersedes: supersedes || undefined,
       _label: (baseTitle || t.split("\n")[0]).slice(0, 80) } : null;
     var errs = [], okN = 0, queuedN = 0, failed = [];
 
