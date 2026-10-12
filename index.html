@@ -223,7 +223,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
         <button class="tool" id="cam" type="button">📷 Chụp ảnh</button>
         <button class="tool" id="attach" type="button">＋ File</button>
         <button class="tool" id="more" type="button">Tiêu đề / ghi chú</button>
-        <input id="fileinput" type="file" accept=".docx,.doc,.pdf,.txt,.md,image/*" multiple hidden>
+        <input id="fileinput" type="file" accept=".docx,.doc,.pdf,.txt,.md,.xlsx,.xls,.csv,image/*" multiple hidden>
         <input id="caminput" type="file" accept="image/*" capture="environment" hidden>
       </div>
       <div class="extra" id="extra">
@@ -628,7 +628,7 @@ nav.bottom button.on span { background: var(--gold-t); padding: 1px 10px; border
     var imgs = [], errs = [];
     list.forEach(function (f) {
       if (isImageFile(f)) imgs.push(f);
-      else if (!/\.(docx|doc|pdf|txt|md)$/i.test(f.name)) errs.push(esc(f.name) + ": chỉ nhận ảnh, Word (.docx, .doc), PDF, .txt, .md.");
+      else if (!/\.(docx|doc|pdf|txt|md|xlsx|xls|csv)$/i.test(f.name)) errs.push(esc(f.name) + ": chỉ nhận ảnh, Word (.docx, .doc), Excel (.xlsx, .xls), PDF, CSV, .txt, .md.");
       else if (f.size > MAXB) errs.push(esc(f.name) + ": file quá lớn (tối đa 15 MB).");
       else files.push(f);
     });
